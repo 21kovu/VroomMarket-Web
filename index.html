@@ -277,19 +277,24 @@
       <button type="button" class="stat stat-button" style="background:#b71c1c" onclick="focusAdminSection('admin-approvals')"><b id="statPendingApprovals">0</b>Pending Approvals</button>
     </div>
 
-    <h3 style="margin-bottom:10px">Register a New Dealer</h3>
+    <h3 id="dealerFormTitle" style="margin-bottom:10px">Register a New Dealer</h3>
     <div class="panel" style="margin-bottom:30px">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 18px">
-        <div><label>Yard / Dealer Name</label><input id="dName" placeholder="e.g. Thika Road Motors"></div>
-        <div><label>Email (login)</label><input id="dEmail" type="email" placeholder="dealer@yard.com"></div>
-        <div><label>Password</label><input id="dPass" placeholder="Auto or manual"></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 18px">
+        <div><label for="dName">Yard / Dealer Name</label><input id="dName" placeholder="e.g. Thika Road Motors"></div>
+        <div><label for="dEmail">Email (login and contact)</label><input id="dEmail" type="email" placeholder="dealer@yard.com"></div>
+        <div><label for="dPhone">Contact Phone</label><input id="dPhone" type="tel" placeholder="e.g. +254 712 345 678"></div>
+        <div><label for="dLoc">Yard Location</label><input id="dLoc" placeholder="e.g. Thika Road, Nairobi"></div>
+        <div><label for="dPass">Password</label><input id="dPass" type="password" placeholder="Set account password"></div>
       </div>
-      <button class="btn btn-green" style="margin-top:16px" onclick="registerDealer()">Create Dealer Account</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <button id="dealerFormSubmit" class="btn btn-green" onclick="registerDealer()">Create Dealer Account</button>
+        <button id="dealerFormCancel" class="btn btn-outline hidden" onclick="cancelDealerEdit()">Cancel Edit</button>
+      </div>
       <p style="font-size:13px;color:#777;margin-top:8px">The dealer receives an email with these login credentials. Admin creates accounts — no public sign-up.</p>
     </div>
 
     <h3 id="admin-dealers" class="admin-target" style="margin-bottom:10px">Registered Dealers</h3>
-    <table id="dealerTable"><thead><tr><th>Yard Name</th><th>Email</th><th>Cars Listed</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
+    <table id="dealerTable"><thead><tr><th>Yard Name</th><th>Email</th><th>Phone</th><th>Location</th><th>Cars Listed</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
 
     <h3 id="admin-listings" class="admin-target" style="margin:26px 0 10px">All Car Listings</h3>
     <table id="adminCarsTable"><thead><tr><th>Car</th><th>Dealer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
@@ -329,8 +334,8 @@
 
         <div class="actions">
           <button class="btn btn-green" onclick="document.getElementById('bookBox').classList.toggle('hidden')">📅 Book Appointment</button>
-          <button class="btn btn-wa" onclick="alert('Demo: opens WhatsApp chat with the dealer.')">💬 Contact Dealer on WhatsApp</button>
-          <button class="btn btn-outline" onclick="alert('Demo: dials the dealer phone number.')">📞 Call Dealer</button>
+          <button class="btn btn-wa" onclick="contactDealer('whatsapp')">💬 Contact Dealer on WhatsApp</button>
+          <button class="btn btn-outline" onclick="contactDealer('call')">📞 Call Dealer</button>
         </div>
       </div>
     </div>
@@ -360,7 +365,7 @@ const cars = [
 let appointments = [
   {buyer:"John Mwangi", phone:"0712 345 678", carId:1, car:"Toyota Corolla 2018", date:"2026-09-26", time:"10:00", status:"Pending"},
 ];
-let currentCar = null, session = null;
+let currentCar = null, session = null, editingDealerIndex = null;
 
 /* ============ VIEWS ============ */
 function showView(v){
@@ -429,6 +434,13 @@ function openCar(id){
   document.getElementById('carModal').classList.add('show');
 }
 function closeModal(){ document.getElementById('carModal').classList.remove('show'); }
+function contactDealer(method){
+  const dealer = dealers.find(d=>d.name===currentCar.dealer);
+  const phone = (dealer?.phone || '').replace(/[^\d+]/g,'');
+  if(!phone){ alert('This dealer has not added a contact phone number yet.'); return; }
+  if(method==='whatsapp') window.open('https://wa.me/'+phone.replace(/\D/g,''),'_blank','noopener');
+  else window.location.href='tel:'+phone;
+}
 function submitBooking(){
   const n=document.getElementById('bName').value.trim(), p=document.getElementById('bPhone').value.trim();
   if(!n||!p){ alert('Please enter your name and phone number.'); return; }
@@ -467,7 +479,7 @@ function addCar(){
   cars.push({id:Math.max(0,...cars.map(c=>c.id))+1, dealer:session.dealer, title:t, price:pr,
     cond:document.getElementById('cCond').value, mile:(+document.getElementById('cMile').value||0).toLocaleString()+' km',
     fuel:document.getElementById('cFuel').value, trans:document.getElementById('cTrans').value,
-    loc:'', img:'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800',
+    loc:dealers.find(d=>d.name===session.dealer)?.loc || '', img:'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800',
     desc:document.getElementById('cDesc').value});
   document.getElementById('addCarForm').classList.add('hidden');
   renderDealer(); renderPublic(); alert('✅ Car published and now visible to the public!');
@@ -481,7 +493,7 @@ function renderAdmin(){
   document.getElementById('statAllAppt').textContent = appointments.length;
   document.getElementById('statPendingApprovals').textContent = pendingCars.length;
   document.querySelector('#dealerTable tbody').innerHTML = dealers.map((d,index)=>`
-    <tr><td>${d.name}</td><td>${d.email}</td><td>${cars.filter(c=>c.dealer===d.name).length}</td><td><span class="pill ok">${d.status}</span></td><td><button type="button" class="btn btn-danger btn-small" onclick="deleteDealer(${index})" aria-label="Delete ${d.name} dealer account">Delete</button></td></tr>`).join('') || '<tr><td colspan="5">No dealer accounts.</td></tr>';
+    <tr><td>${d.name}</td><td>${d.email}</td><td>${d.phone || '—'}</td><td>${d.loc || '—'}</td><td>${cars.filter(c=>c.dealer===d.name).length}</td><td><span class="pill ok">${d.status}</span></td><td><button type="button" class="btn btn-outline btn-small" onclick="editDealer(${index})" aria-label="Edit ${d.name} dealer account">Edit</button> <button type="button" class="btn btn-danger btn-small" onclick="deleteDealer(${index})" aria-label="Delete ${d.name} dealer account">Delete</button></td></tr>`).join('') || '<tr><td colspan="7">No dealer accounts.</td></tr>';
   document.querySelector('#adminCarsTable tbody').innerHTML = cars.map(c=>`
     <tr><td>${c.title}</td><td>${c.dealer}</td><td>KES ${c.price.toLocaleString()}</td><td><span class="pill ${c.status==='Pending'?'pend':'ok'}">${c.status==='Pending'?'PENDING':'LIVE'}</span></td><td><button type="button" class="btn btn-danger btn-small" onclick="deleteCar(${c.id})" aria-label="Delete ${c.title} listing">Delete</button></td></tr>`).join('') || '<tr><td colspan="5">No car listings.</td></tr>';
   document.querySelector('#adminApptTable tbody').innerHTML = appointments.map(a=>`
@@ -514,12 +526,51 @@ function deleteCar(id){
   renderPublic();
 }
 function registerDealer(){
-  const n=document.getElementById('dName').value.trim(), e=document.getElementById('dEmail').value.trim(), p=document.getElementById('dPass').value;
-  if(!n||!e||!p){ alert('Fill in all dealer fields.'); return; }
-  dealers.push({name:n, email:e, pass:p, loc:'—', status:'Active'});
-  alert('✅ Dealer account created!\nLogin email: '+e+'\nPassword: '+p+'\n(Demo: in production, these are emailed automatically.)');
-  document.getElementById('dName').value=document.getElementById('dEmail').value=document.getElementById('dPass').value='';
+  const n=document.getElementById('dName').value.trim(), e=document.getElementById('dEmail').value.trim();
+  const phone=document.getElementById('dPhone').value.trim(), loc=document.getElementById('dLoc').value.trim();
+  const p=document.getElementById('dPass').value;
+  if(!n||!e||(!p && editingDealerIndex===null)){ alert('Enter the dealer name, email and password.'); return; }
+  if(editingDealerIndex!==null){
+    const dealer=dealers[editingDealerIndex];
+    if(!dealer) return cancelDealerEdit();
+    const oldName=dealer.name;
+    Object.assign(dealer,{name:n,email:e,phone,loc});
+    if(p) dealer.pass=p;
+    cars.forEach(car=>{ if(car.dealer===oldName) { car.dealer=n; car.loc=loc; } });
+    alert('✅ Dealer details updated.');
+  }else{
+    dealers.push({name:n,email:e,phone,pass:p,loc,status:'Active'});
+    alert('✅ Dealer account created!\nLogin email: '+e+'\nPassword: '+p+'\n(Demo: in production, these are emailed automatically.)');
+  }
+  cancelDealerEdit();
   renderAdmin();
+}
+function editDealer(index){
+  const dealer=dealers[index];
+  if(!dealer) return;
+  editingDealerIndex=index;
+  document.getElementById('dealerFormTitle').textContent='Edit Dealer Details';
+  document.getElementById('dealerFormSubmit').textContent='Save Dealer Details';
+  document.getElementById('dealerFormCancel').classList.remove('hidden');
+  document.getElementById('dName').value=dealer.name;
+  document.getElementById('dEmail').value=dealer.email;
+  document.getElementById('dPhone').value=dealer.phone || '';
+  document.getElementById('dLoc').value=dealer.loc || '';
+  document.getElementById('dPass').value='';
+  document.getElementById('dPass').placeholder='Leave blank to keep current password';
+  document.getElementById('dealerFormTitle').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function cancelDealerEdit(){
+  editingDealerIndex=null;
+  document.getElementById('dealerFormTitle').textContent='Register a New Dealer';
+  document.getElementById('dealerFormSubmit').textContent='Create Dealer Account';
+  document.getElementById('dealerFormCancel').classList.add('hidden');
+  document.getElementById('dName').value='';
+  document.getElementById('dEmail').value='';
+  document.getElementById('dPhone').value='';
+  document.getElementById('dLoc').value='';
+  document.getElementById('dPass').value='';
+  document.getElementById('dPass').placeholder='Set account password';
 }
 
 renderPublic();

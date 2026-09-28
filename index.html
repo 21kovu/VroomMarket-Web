@@ -4,141 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VroomMarket — Buy & Sell Cars in Your Area</title>
-<style>
-  :root{
-    --green:#1b5e20; --green-lt:#2e7d32; --dark:#121a12; --grey:#f4f6f4;
-    --accent:#ffc107; --text:#2b2b2b;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Calibri,Arial,sans-serif;}
-  body{color:var(--text);background:#fff;overflow-x:hidden;}
-  img{max-width:100%;display:block;}
-  /* ---------- NAV ---------- */
-  header{background:var(--dark);position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.3);}
-  .nav{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;}
-  .logo{font-size:26px;font-weight:800;color:#fff;}
-  .logo span{color:var(--accent);}
-  .nav a{color:#ddd;text-decoration:none;margin-left:22px;font-size:15px;cursor:pointer;}
-  .nav a:hover{color:var(--accent);}
-  .nav .btn-login{background:var(--green-lt);color:#fff!important;padding:8px 18px;border-radius:6px;font-weight:600;}
-  .nav .btn-login:hover{background:var(--accent);color:#111!important;}
-  /* ---------- HERO ---------- */
-  .hero{background:linear-gradient(rgba(10,20,10,.75),rgba(10,20,10,.75)),url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1400') center/cover;color:#fff;text-align:center;padding:80px 20px 60px;}
-  .hero h1{font-size:44px;margin-bottom:10px;}
-  .hero p{font-size:18px;color:#cfe3cf;margin-bottom:28px;}
-  .searchbar{max-width:760px;margin:auto;display:flex;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.35);}
-  .searchbar input{flex:1;border:none;padding:16px;font-size:15px;outline:none;}
-  .searchbar select{border:none;border-left:1px solid #ddd;padding:0 14px;outline:none;font-size:14px;color:#555;}
-  .searchbar button{background:var(--green);color:#fff;border:none;padding:16px 30px;font-size:15px;font-weight:700;cursor:pointer;}
-  .searchbar button:hover{background:var(--green-lt);}
-  /* ---------- SECTIONS ---------- */
-  section{max-width:1200px;margin:auto;padding:50px 20px;}
-  .sec-title{font-size:28px;margin-bottom:6px;}
-  .sec-sub{color:#777;margin-bottom:26px;}
-  /* ---------- CAR GRID ---------- */
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(265px,1fr));gap:22px;}
-  .card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.10);transition:.2s;cursor:pointer;}
-  .card:hover{transform:translateY(-5px);box-shadow:0 10px 24px rgba(0,0,0,.16);}
-  .card img{width:100%;height:170px;object-fit:cover;}
-  .card-body{padding:14px 16px;}
-  .card-body h3{font-size:17px;margin-bottom:4px;}
-  .card-body .price{color:var(--green);font-weight:800;font-size:18px;}
-  .card-body .meta{font-size:13px;color:#777;margin-top:4px;}
-  .badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:8px;}
-  .b-new{background:#e8f5e9;color:var(--green);}
-  .b-used{background:#fff8e1;color:#8a6d00;}
-  .b-sale{background:#fdecea;color:#b71c1c;}
-  /* ---------- MODAL ---------- */
-  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;justify-content:center;align-items:center;padding:20px;}
-  .modal-bg.show{display:flex;}
-  .modal{background:#fff;border-radius:14px;max-width:860px;width:100%;max-height:90vh;overflow:auto;}
-  .modal .m-img{width:100%;height:340px;object-fit:cover;border-radius:14px 14px 0 0;}
-  .modal-body{padding:24px 28px;}
-  .modal-body h2{margin-bottom:4px;}
-  .specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;background:var(--grey);padding:16px;border-radius:10px;margin:16px 0;}
-  .specs div{font-size:14px;}
-  .specs b{display:block;color:#555;font-size:12px;text-transform:uppercase;}
-  .actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;}
-  .btn{padding:13px 26px;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;}
-  .btn-green{background:var(--green);color:#fff;}
-  .btn-green:hover{background:var(--green-lt);}
-  .btn-danger{background:#b71c1c;color:#fff;}
-  .btn-danger:hover{background:#8e1717;}
-  .btn-small{padding:7px 12px;font-size:13px;white-space:nowrap;}
-  .btn-outline{background:#fff;border:2px solid var(--green);color:var(--green);}
-  .btn-wa{background:#25d366;color:#fff;}
-  .close-x{float:right;font-size:26px;cursor:pointer;color:#999;padding:0 6px;}
-  /* ---------- FORMS / PANELS ---------- */
-  .panel{background:var(--grey);border-radius:14px;padding:28px;}
-  label{font-size:13px;font-weight:600;display:block;margin:12px 0 4px;color:#444;}
-  input,select,textarea{width:100%;padding:11px;border:1px solid #ccc;border-radius:7px;font-size:14px;}
-  table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;}
-  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid #eee;font-size:14px;}
-  th{background:var(--dark);color:#fff;font-size:12px;text-transform:uppercase;letter-spacing:.5px;}
-  .hidden{display:none!important;}
-  .filter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0 18px;align-items:end;}
-  .filter-actions{display:flex;gap:10px;align-items:end;margin-top:12px;}
-  .dash-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
-  .stat{background:var(--green);color:#fff;border-radius:10px;padding:16px 22px;min-width:150px;}
-  .stat-button{border:0;text-align:left;font:inherit;cursor:pointer;transition:filter .15s,transform .15s;}
-  .stat-button:hover{filter:brightness(1.08);transform:translateY(-2px);}
-  .stat-button:focus-visible{outline:3px solid #111;outline-offset:3px;}
-  .stat b{font-size:26px;display:block;}
-  .stats-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:22px;}
-  .admin-target{scroll-margin-top:90px;}
-  .pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
-  .ok{background:#e8f5e9;color:var(--green);}
-  .pend{background:#fff8e1;color:#8a6d00;}
-  footer{background:var(--dark);color:#aaa;text-align:center;padding:26px;margin-top:40px;font-size:14px;}
-  footer b{color:#fff;}
-
-  @media (max-width: 980px){
-    .nav{flex-wrap:wrap;gap:12px;}
-    .nav nav{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px 16px;}
-    .nav a{margin-left:0;}
-    .hero{padding:60px 18px 45px;}
-    .hero h1{font-size:36px;}
-    .searchbar{max-width:100%;}
-    .grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));}
-  }
-
-  @media (max-width: 768px){
-    .hero h1{font-size:30px;}
-    .hero p{font-size:16px;}
-    .searchbar{display:grid;grid-template-columns:1fr;gap:0;border-radius:12px;overflow:hidden;}
-    .searchbar input,.searchbar select,.searchbar button{width:100%;border:none;border-top:1px solid #ddd;}
-    .searchbar input{border-top:none;}
-    .searchbar button{padding:15px 20px;}
-    .section,.panel,section{padding-left:14px;padding-right:14px;}
-    .grid{grid-template-columns:1fr;}
-    .stats-row{flex-direction:column;}
-    .stat{min-width:100%;}
-    .dash-head{align-items:flex-start;}
-    .modal{max-width:100%;margin:0 10px;}
-    .modal-body{padding:0;}
-    .modal-body > div{padding:18px 16px !important;}
-    .actions{flex-direction:column;}
-    .actions .btn{width:100%;}
-    .specs{grid-template-columns:1fr 1fr;}
-    .filter-grid{grid-template-columns:1fr 1fr;}
-  }
-
-  @media (max-width: 480px){
-    .logo{font-size:22px;}
-    .nav{padding:10px 14px;}
-    .nav nav{width:100%;justify-content:space-between;}
-    .nav a{font-size:13px;}
-    .hero h1{font-size:26px;line-height:1.2;}
-    .sec-title{font-size:24px;}
-    .sec-sub{font-size:14px;}
-    .specs{grid-template-columns:1fr;}
-    .panel{padding:18px 14px;}
-    .btn{padding:12px 18px;font-size:14px;}
-    table{display:block;overflow-x:auto;white-space:nowrap;}
-    .filter-grid{grid-template-columns:1fr;}
-    .filter-actions{align-items:stretch;flex-direction:column;}
-  }
-</style>
-<base target="_blank">
+<link rel="stylesheet" href="css/style.css">
+<!-- Supabase Client Library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -218,7 +86,7 @@
         <button class="btn btn-green" onclick="doLogin()">Login</button>
         <button class="btn btn-outline" onclick="showView('home')">Cancel</button>
       </div>
-      <p style="margin-top:14px;font-size:13px;color:#777">Demo: <b>admin@vroommarket.com / admin123</b> or <b>thikaroadmotors@vroommarket.com / demo123</b></p>
+      <p style="margin-top:14px;font-size:13px;color:#777">Demo Admin: <b>admin@vroommarket.com / admin123</b></p>
     </div>
   </section>
 </div>
@@ -242,7 +110,9 @@
     <div id="addCarForm" class="panel hidden" style="margin-bottom:26px">
       <h3>Post a New Car</h3>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 18px">
-        <div><label>Make & Model</label><input id="cModel" placeholder="e.g. Toyota Corolla 2018"></div>
+        <div><label>Make</label><select id="cMake" onchange="loadModels()"><option value="">Select Make...</option></select></div>
+        <div><label>Model</label><select id="cModel"><option value="">Select Model...</option></select></div>
+        <div><label>Year</label><input id="cYear" type="number" placeholder="e.g. 2018"></div>
         <div><label>Price (KES)</label><input id="cPrice" type="number" placeholder="e.g. 1450000"></div>
         <div><label>Condition</label><select id="cCond"><option>New</option><option>Foreign Used</option><option>Locally Used</option></select></div>
         <div><label>Mileage (km)</label><input id="cMile" placeholder="e.g. 62000"></div>
@@ -277,24 +147,18 @@
       <button type="button" class="stat stat-button" style="background:#b71c1c" onclick="focusAdminSection('admin-approvals')"><b id="statPendingApprovals">0</b>Pending Approvals</button>
     </div>
 
-    <h3 id="dealerFormTitle" style="margin-bottom:10px">Register a New Dealer</h3>
+    <h3 style="margin-bottom:10px">Register a New Dealer</h3>
     <div class="panel" style="margin-bottom:30px">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0 18px">
-        <div><label for="dName">Yard / Dealer Name</label><input id="dName" placeholder="e.g. Thika Road Motors"></div>
-        <div><label for="dEmail">Email (login and contact)</label><input id="dEmail" type="email" placeholder="dealer@yard.com"></div>
-        <div><label for="dPhone">Contact Phone</label><input id="dPhone" type="tel" placeholder="e.g. +254 712 345 678"></div>
-        <div><label for="dLoc">Yard Location</label><input id="dLoc" placeholder="e.g. Thika Road, Nairobi"></div>
-        <div><label for="dPass">Password</label><input id="dPass" type="password" placeholder="Set account password"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 18px">
+        <div><label>Yard / Dealer Name</label><input id="dName" placeholder="e.g. Thika Road Motors"></div>
+        <div><label>Email (login)</label><input id="dEmail" type="email" placeholder="dealer@yard.com"></div>
+        <div><label>Password</label><input id="dPass" placeholder="Auto or manual"></div>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
-        <button id="dealerFormSubmit" class="btn btn-green" onclick="registerDealer()">Create Dealer Account</button>
-        <button id="dealerFormCancel" class="btn btn-outline hidden" onclick="cancelDealerEdit()">Cancel Edit</button>
-      </div>
-      <p style="font-size:13px;color:#777;margin-top:8px">The dealer receives an email with these login credentials. Admin creates accounts — no public sign-up.</p>
+      <button class="btn btn-green" style="margin-top:16px" onclick="registerDealer()">Create Dealer Account</button>
     </div>
 
     <h3 id="admin-dealers" class="admin-target" style="margin-bottom:10px">Registered Dealers</h3>
-    <table id="dealerTable"><thead><tr><th>Yard Name</th><th>Email</th><th>Phone</th><th>Location</th><th>Cars Listed</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
+    <table id="dealerTable"><thead><tr><th>Yard Name</th><th>Email</th><th>Cars Listed</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
 
     <h3 id="admin-listings" class="admin-target" style="margin:26px 0 10px">All Car Listings</h3>
     <table id="adminCarsTable"><thead><tr><th>Car</th><th>Dealer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
@@ -334,8 +198,8 @@
 
         <div class="actions">
           <button class="btn btn-green" onclick="document.getElementById('bookBox').classList.toggle('hidden')">📅 Book Appointment</button>
-          <button class="btn btn-wa" onclick="contactDealer('whatsapp')">💬 Contact Dealer on WhatsApp</button>
-          <button class="btn btn-outline" onclick="contactDealer('call')">📞 Call Dealer</button>
+          <button class="btn btn-wa" onclick="alert('Demo: opens WhatsApp chat with the dealer.')">💬 Contact Dealer on WhatsApp</button>
+          <button class="btn btn-outline" onclick="alert('Demo: dials the dealer phone number.')">📞 Call Dealer</button>
         </div>
       </div>
     </div>
@@ -347,233 +211,9 @@
   Connecting local car yards with buyers. © 2026
 </footer>
 
-<script>
-/* ============ DEMO DATA (would live in a database) ============ */
-const dealers = [
-  {name:"Thika Road Motors", email:"thikaroadmotors@vroommarket.com", pass:"demo123", loc:"Thika Road, Nairobi", status:"Active"},
-  {name:"Kayole Auto Hub", email:"kayoleautohub@vroommarket.com", pass:"demo123", loc:"Kayole, Nairobi", status:"Active"},
-  {name:"Mombasa Premium Cars", email:"mombasapremium@vroommarket.com", pass:"demo123", loc:"Mombasa Island", status:"Active"},
-];
-const cars = [
-  {id:1, dealer:"Thika Road Motors", title:"Toyota Corolla 2018", year:2018, color:"White", price:1450000, cond:"Foreign Used", mile:"62,000 km", fuel:"Petrol", trans:"Automatic", loc:"Thika Road, Nairobi", img:"https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800", desc:"Well maintained, accident-free, full service history. Features alloy rims, power windows and a brand new set of tires."},
-  {id:2, dealer:"Kayole Auto Hub", title:"Honda CR-V 2017", year:2017, color:"Black", price:2380000, cond:"Foreign Used", mile:"48,000 km", fuel:"Petrol", trans:"Automatic", loc:"Kayole, Nairobi", img:"https://images.unsplash.com/photo-1568844293986-8d0400bd4745?w=800", desc:"Spacious family SUV. Leather seats, reverse camera, cruise control. Fresh import, duty fully paid."},
-  {id:3, dealer:"Mombasa Premium Cars", title:"Subaru Forester 2019", year:2019, color:"Blue", price:2650000, cond:"New", mile:"0 km", fuel:"Petrol", trans:"Automatic", loc:"Mombasa Island", img:"https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800", desc:"Brand new, zero mileage with manufacturer warranty. EyeSight safety system, AWD."},
-  {id:4, dealer:"Thika Road Motors", title:"Mazda CX-5 2016", year:2016, color:"Red", price:1980000, cond:"Locally Used", mile:"89,000 km", fuel:"Diesel", trans:"Automatic", loc:"Thika Road, Nairobi", img:"https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800", desc:"One owner since import. Fuel-efficient diesel engine, very clean interior, new suspension."},
-  {id:5, dealer:"Kayole Auto Hub", title:"Nissan X-Trail 2017", year:2017, color:"Silver", price:2150000, cond:"Foreign Used", mile:"71,000 km", fuel:"Petrol", trans:"Automatic", loc:"Kayole, Nairobi", img:"https://images.unsplash.com/photo-1535732820275-9ffd998cac22?w=800", desc:"7-seater 4x4. Perfect for family trips. Recently serviced with new brake pads."},
-  {id:6, dealer:"Mombasa Premium Cars", title:"Mercedes C200 2015", year:2015, color:"Grey", price:2450000, cond:"Foreign Used", mile:"95,000 km", fuel:"Petrol", trans:"Automatic", loc:"Mombasa Island", img:"https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=800", desc:"Executive saloon. Sunroof, heated seats, push start. A true head-turner."},
-];
-let appointments = [
-  {buyer:"John Mwangi", phone:"0712 345 678", carId:1, car:"Toyota Corolla 2018", date:"2026-09-26", time:"10:00", status:"Pending"},
-];
-let currentCar = null, session = null, editingDealerIndex = null;
-
-/* ============ VIEWS ============ */
-function showView(v){
-  ['home','buy','login','dealer','admin'].forEach(x=>document.getElementById('view-'+x).classList.add('hidden'));
-  document.getElementById('view-'+v).classList.remove('hidden');
-  if(v==='buy') filterCars();
-  window.scrollTo(0,0);
-}
-function focusAdminSection(id){
-  document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'});
-}
-function logout(){ session=null; showView('home'); renderPublic(); }
-
-/* ============ PUBLIC GRID ============ */
-const badge = c => c==="New" ? '<span class="badge b-new">NEW</span>' : c==="Foreign Used" ? '<span class="badge b-used">FOREIGN USED</span>' : '<span class="badge b-used">LOCALLY USED</span>';
-function renderCarGrid(list, gridId){
-  document.getElementById(gridId).innerHTML = list.map(c=>`
-    <div class="card" onclick="openCar(${c.id})">
-      <img src="${c.img}">
-      <div class="card-body">
-        <h3>${c.title}</h3>
-        <div class="price">KES ${c.price.toLocaleString()}</div>
-        <div class="meta">${c.mile} • ${c.fuel} • ${c.trans}</div>
-        ${badge(c.cond)}
-        <div class="meta" style="margin-top:8px">🏢 ${c.dealer} — ${c.loc}</div>
-      </div>
-    </div>`).join('') || '<p>No cars match those filters. Try a different selection.</p>';
-}
-function renderPublic(){
-  renderCarGrid(cars, 'carGrid');
-}
-function filterCars(){
-  const model = document.getElementById('filterModel').value.trim().toLowerCase();
-  const year = document.getElementById('filterYear').value;
-  const condition = document.getElementById('filterCondition').value;
-  const color = document.getElementById('filterColor').value.trim().toLowerCase();
-  const matches = cars.filter(c =>
-    (!model || c.title.toLowerCase().includes(model)) &&
-    (!year || String(c.year)===year) &&
-    (!condition || c.cond===condition) &&
-    (!color || String(c.color || '').toLowerCase().includes(color))
-  );
-  renderCarGrid(matches, 'filteredCarGrid');
-  document.getElementById('filterSummary').textContent = `${matches.length} car${matches.length===1?'':'s'} found`;
-}
-function clearCarFilters(){
-  document.getElementById('filterModel').value='';
-  document.getElementById('filterYear').value='';
-  document.getElementById('filterCondition').value='';
-  document.getElementById('filterColor').value='';
-  filterCars();
-}
-function openCar(id){
-  currentCar = cars.find(c=>c.id===id);
-  const c = currentCar;
-  document.getElementById('mImg').src = c.img;
-  document.getElementById('mTitle').textContent = c.title;
-  document.getElementById('mPrice').textContent = 'KES ' + c.price.toLocaleString();
-  document.getElementById('mDesc').textContent = c.desc;
-  document.getElementById('mDealer').textContent = c.dealer;
-  document.getElementById('mLoc').textContent = c.loc;
-  document.getElementById('mSpecs').innerHTML = `
-    <div><b>Condition</b>${c.cond}</div><div><b>Mileage</b>${c.mile}</div>
-    <div><b>Fuel</b>${c.fuel}</div><div><b>Transmission</b>${c.trans}</div>`;
-  document.getElementById('bookBox').classList.add('hidden');
-  document.getElementById('carModal').classList.add('show');
-}
-function closeModal(){ document.getElementById('carModal').classList.remove('show'); }
-function contactDealer(method){
-  const dealer = dealers.find(d=>d.name===currentCar.dealer);
-  const phone = (dealer?.phone || '').replace(/[^\d+]/g,'');
-  if(!phone){ alert('This dealer has not added a contact phone number yet.'); return; }
-  if(method==='whatsapp') window.open('https://wa.me/'+phone.replace(/\D/g,''),'_blank','noopener');
-  else window.location.href='tel:'+phone;
-}
-function submitBooking(){
-  const n=document.getElementById('bName').value.trim(), p=document.getElementById('bPhone').value.trim();
-  if(!n||!p){ alert('Please enter your name and phone number.'); return; }
-  appointments.push({buyer:n, phone:p, carId:currentCar.id, car:currentCar.title,
-    date:document.getElementById('bDate').value||'Flexible', time:document.getElementById('bTime').value||'Flexible', status:'Pending'});
-  alert('✅ Booking request sent to '+currentCar.dealer+'!\nThey will call you to confirm.');
-  closeModal();
-}
-
-/* ============ LOGIN ============ */
-function doLogin(){
-  const e=document.getElementById('loginEmail').value.trim().toLowerCase();
-  const p=document.getElementById('loginPass').value;
-  if(e==='admin@vroommarket.com' && p==='admin123'){ session={role:'admin'}; showView('admin'); renderAdmin(); return; }
-  const d = dealers.find(d=>d.email.toLowerCase()===e && d.pass===p);
-  if(d){ session={role:'dealer', dealer:d.name}; document.getElementById('dealerName').textContent=d.name+' Dashboard';
-    document.getElementById('dealerSub').textContent=d.loc+' — manage your listings and buyer requests';
-    showView('dealer'); renderDealer(); return; }
-  alert('Invalid credentials. Contact VroomMarket admin to be registered.');
-}
-
-/* ============ DEALER DASHBOARD ============ */
-function renderDealer(){
-  const mine = cars.filter(c=>c.dealer===session.dealer);
-  document.getElementById('statCars').textContent = mine.length;
-  const appts = appointments.filter(a=>a.carId && mine.some(m=>m.id===a.carId));
-  document.getElementById('statAppt').textContent = appts.length;
-  document.querySelector('#dealerCarsTable tbody').innerHTML = mine.map(c=>`
-    <tr><td>${c.title}</td><td>KES ${c.price.toLocaleString()}</td><td>${c.cond}</td><td>${Math.floor(Math.random()*300)+40}</td><td>${appts.filter(a=>a.carId===c.id).length}</td></tr>`).join('');
-  document.querySelector('#dealerApptTable tbody').innerHTML = appts.map(a=>`
-    <tr><td>${a.buyer}</td><td>${a.car}</td><td>${a.date} ${a.time}</td><td>${a.phone}</td><td><span class="pill pend">${a.status}</span></td></tr>`).join('');
-}
-function addCar(){
-  const t=document.getElementById('cModel').value.trim(), pr=+document.getElementById('cPrice').value;
-  if(!t||!pr){ alert('Enter at least the make/model and price.'); return; }
-  cars.push({id:Math.max(0,...cars.map(c=>c.id))+1, dealer:session.dealer, title:t, price:pr,
-    cond:document.getElementById('cCond').value, mile:(+document.getElementById('cMile').value||0).toLocaleString()+' km',
-    fuel:document.getElementById('cFuel').value, trans:document.getElementById('cTrans').value,
-    loc:dealers.find(d=>d.name===session.dealer)?.loc || '', img:'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800',
-    desc:document.getElementById('cDesc').value});
-  document.getElementById('addCarForm').classList.add('hidden');
-  renderDealer(); renderPublic(); alert('✅ Car published and now visible to the public!');
-}
-
-/* ============ ADMIN DASHBOARD ============ */
-function renderAdmin(){
-  const pendingCars = cars.filter(c=>c.status==='Pending');
-  document.getElementById('statAllDealers').textContent = dealers.length;
-  document.getElementById('statAllCars').textContent = cars.length;
-  document.getElementById('statAllAppt').textContent = appointments.length;
-  document.getElementById('statPendingApprovals').textContent = pendingCars.length;
-  document.querySelector('#dealerTable tbody').innerHTML = dealers.map((d,index)=>`
-    <tr><td>${d.name}</td><td>${d.email}</td><td>${d.phone || '—'}</td><td>${d.loc || '—'}</td><td>${cars.filter(c=>c.dealer===d.name).length}</td><td><span class="pill ok">${d.status}</span></td><td><button type="button" class="btn btn-outline btn-small" onclick="editDealer(${index})" aria-label="Edit ${d.name} dealer account">Edit</button> <button type="button" class="btn btn-danger btn-small" onclick="deleteDealer(${index})" aria-label="Delete ${d.name} dealer account">Delete</button></td></tr>`).join('') || '<tr><td colspan="7">No dealer accounts.</td></tr>';
-  document.querySelector('#adminCarsTable tbody').innerHTML = cars.map(c=>`
-    <tr><td>${c.title}</td><td>${c.dealer}</td><td>KES ${c.price.toLocaleString()}</td><td><span class="pill ${c.status==='Pending'?'pend':'ok'}">${c.status==='Pending'?'PENDING':'LIVE'}</span></td><td><button type="button" class="btn btn-danger btn-small" onclick="deleteCar(${c.id})" aria-label="Delete ${c.title} listing">Delete</button></td></tr>`).join('') || '<tr><td colspan="5">No car listings.</td></tr>';
-  document.querySelector('#adminApptTable tbody').innerHTML = appointments.map(a=>`
-    <tr><td>${a.buyer}</td><td>${a.car}</td><td>${a.date} ${a.time}</td><td>${a.phone}</td><td><span class="pill pend">${a.status}</span></td></tr>`).join('') || '<tr><td colspan="5">No viewing requests yet.</td></tr>';
-  document.querySelector('#adminApprovalTable tbody').innerHTML = pendingCars.map(c=>`
-    <tr><td>${c.title}</td><td>${c.dealer}</td><td>KES ${c.price.toLocaleString()}</td><td><span class="pill pend">PENDING</span></td></tr>`).join('') || '<tr><td colspan="4">No pending approvals.</td></tr>';
-}
-function deleteDealer(index){
-  const dealer = dealers[index];
-  if(!dealer) return;
-  const dealerCars = cars.filter(c=>c.dealer===dealer.name);
-  const carIds = new Set(dealerCars.map(c=>c.id));
-  const requestCount = appointments.filter(a=>carIds.has(a.carId)).length;
-  const details = `This will also remove ${dealerCars.length} car listing(s) and ${requestCount} viewing request(s).`;
-  if(!confirm(`Delete the dealer account for ${dealer.name}? ${details} This deletion applies to this session and resets when the demo reloads.`)) return;
-  dealers.splice(index,1);
-  cars.splice(0,cars.length,...cars.filter(c=>c.dealer!==dealer.name));
-  appointments = appointments.filter(a=>!carIds.has(a.carId));
-  renderAdmin();
-  renderPublic();
-}
-function deleteCar(id){
-  const car = cars.find(c=>c.id===id);
-  if(!car) return;
-  const requestCount = appointments.filter(a=>a.carId===id).length;
-  if(!confirm(`Delete the ${car.title} listing? This will also remove ${requestCount} viewing request(s). This deletion applies to this session and resets when the demo reloads.`)) return;
-  cars.splice(cars.findIndex(c=>c.id===id),1);
-  appointments = appointments.filter(a=>a.carId!==id);
-  renderAdmin();
-  renderPublic();
-}
-function registerDealer(){
-  const n=document.getElementById('dName').value.trim(), e=document.getElementById('dEmail').value.trim();
-  const phone=document.getElementById('dPhone').value.trim(), loc=document.getElementById('dLoc').value.trim();
-  const p=document.getElementById('dPass').value;
-  if(!n||!e||(!p && editingDealerIndex===null)){ alert('Enter the dealer name, email and password.'); return; }
-  if(editingDealerIndex!==null){
-    const dealer=dealers[editingDealerIndex];
-    if(!dealer) return cancelDealerEdit();
-    const oldName=dealer.name;
-    Object.assign(dealer,{name:n,email:e,phone,loc});
-    if(p) dealer.pass=p;
-    cars.forEach(car=>{ if(car.dealer===oldName) { car.dealer=n; car.loc=loc; } });
-    alert('✅ Dealer details updated.');
-  }else{
-    dealers.push({name:n,email:e,phone,pass:p,loc,status:'Active'});
-    alert('✅ Dealer account created!\nLogin email: '+e+'\nPassword: '+p+'\n(Demo: in production, these are emailed automatically.)');
-  }
-  cancelDealerEdit();
-  renderAdmin();
-}
-function editDealer(index){
-  const dealer=dealers[index];
-  if(!dealer) return;
-  editingDealerIndex=index;
-  document.getElementById('dealerFormTitle').textContent='Edit Dealer Details';
-  document.getElementById('dealerFormSubmit').textContent='Save Dealer Details';
-  document.getElementById('dealerFormCancel').classList.remove('hidden');
-  document.getElementById('dName').value=dealer.name;
-  document.getElementById('dEmail').value=dealer.email;
-  document.getElementById('dPhone').value=dealer.phone || '';
-  document.getElementById('dLoc').value=dealer.loc || '';
-  document.getElementById('dPass').value='';
-  document.getElementById('dPass').placeholder='Leave blank to keep current password';
-  document.getElementById('dealerFormTitle').scrollIntoView({behavior:'smooth',block:'start'});
-}
-function cancelDealerEdit(){
-  editingDealerIndex=null;
-  document.getElementById('dealerFormTitle').textContent='Register a New Dealer';
-  document.getElementById('dealerFormSubmit').textContent='Create Dealer Account';
-  document.getElementById('dealerFormCancel').classList.add('hidden');
-  document.getElementById('dName').value='';
-  document.getElementById('dEmail').value='';
-  document.getElementById('dPhone').value='';
-  document.getElementById('dLoc').value='';
-  document.getElementById('dPass').value='';
-  document.getElementById('dPass').placeholder='Set account password';
-}
-
-renderPublic();
-</script>
+<!-- Your Scripts -->
+<script src="js/supabase.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

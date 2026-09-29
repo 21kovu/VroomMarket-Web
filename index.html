@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VroomMarket — Buy & Sell Cars in Your Area</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="style.css">
 <!-- Supabase Client Library -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -86,7 +86,6 @@
         <button class="btn btn-green" onclick="doLogin()">Login</button>
         <button class="btn btn-outline" onclick="showView('home')">Cancel</button>
       </div>
-      <p style="margin-top:14px;font-size:13px;color:#777">Demo Admin: <b>admin@vroommarket.com / admin123</b></p>
     </div>
   </section>
 </div>
@@ -119,16 +118,35 @@
         <div><label>Fuel</label><select id="cFuel"><option>Petrol</option><option>Diesel</option><option>Hybrid</option></select></div>
         <div><label>Transmission</label><select id="cTrans"><option>Automatic</option><option>Manual</option></select></div>
       </div>
-      <label>Photos</label><input type="file" accept="image/*" multiple onchange="alert('Demo: photos would upload to the server here.')">
+      <label for="cPhotos">Photos</label><input id="cPhotos" type="file" accept="image/*" multiple>
       <label>Description</label><textarea id="cDesc" rows="3" placeholder="Condition, features, service history…"></textarea>
       <button class="btn btn-green" style="margin-top:16px" onclick="addCar()">Publish Listing</button>
     </div>
 
     <h3 style="margin-bottom:10px">My Cars</h3>
-    <table id="dealerCarsTable"><thead><tr><th>Car</th><th>Price</th><th>Condition</th><th>Views</th><th>Viewing Requests</th></tr></thead><tbody></tbody></table>
+    <table id="dealerCarsTable"><thead><tr><th>Car</th><th>Price</th><th>Condition</th><th>Status</th><th>Photos</th><th>Viewing Requests</th></tr></thead><tbody></tbody></table>
 
     <h3 style="margin:26px 0 10px">Viewing Requests From Buyers</h3>
     <table id="dealerApptTable"><thead><tr><th>Buyer</th><th>Car</th><th>Date</th><th>Phone</th><th>Status</th></tr></thead><tbody></tbody></table>
+
+    <h3 style="margin:26px 0 10px">Record a Sale</h3>
+    <div class="panel" style="margin-bottom:26px">
+      <div class="filter-grid">
+        <div><label for="saleCar">Car</label><select id="saleCar"><option value="">Select one of your cars</option></select></div>
+        <div><label for="saleAmount">Sale price (KES)</label><input id="saleAmount" type="number" min="1"></div>
+        <div><label for="saleDate">Sale date</label><input id="saleDate" type="date"></div>
+        <div><label for="saleNotes">Notes</label><input id="saleNotes" type="text" placeholder="Optional"></div>
+      </div>
+      <button class="btn btn-green" style="margin-top:16px" onclick="recordSale()">Record Sale</button>
+    </div>
+    <h3 style="margin:26px 0 10px">My Sales</h3>
+    <table id="dealerSalesTable"><thead><tr><th>Car</th><th>Amount</th><th>Date</th><th>Notes</th></tr></thead><tbody></tbody></table>
+
+    <h3 style="margin:26px 0 10px">Change Password</h3>
+    <div class="panel">
+      <label for="dealerNewPassword">New password</label><input id="dealerNewPassword" type="password" autocomplete="new-password">
+      <button class="btn btn-outline" style="margin-top:16px" onclick="changeOwnPassword()">Update Password</button>
+    </div>
   </section>
 </div>
 
@@ -149,25 +167,40 @@
 
     <h3 style="margin-bottom:10px">Register a New Dealer</h3>
     <div class="panel" style="margin-bottom:30px">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 18px">
+      <div class="filter-grid">
         <div><label>Yard / Dealer Name</label><input id="dName" placeholder="e.g. Thika Road Motors"></div>
         <div><label>Email (login)</label><input id="dEmail" type="email" placeholder="dealer@yard.com"></div>
-        <div><label>Password</label><input id="dPass" placeholder="Auto or manual"></div>
+        <div><label>Temporary Password</label><input id="dPass" type="password" autocomplete="new-password"></div>
+        <div><label>Phone</label><input id="dPhone" type="tel"></div>
+        <div><label>WhatsApp number</label><input id="dWhatsapp" type="tel"></div>
+        <div><label>Location</label><input id="dLocation"></div>
       </div>
       <button class="btn btn-green" style="margin-top:16px" onclick="registerDealer()">Create Dealer Account</button>
     </div>
 
+    <h3 style="margin-bottom:10px">Add an Admin</h3>
+    <div class="panel" style="margin-bottom:30px">
+      <div class="filter-grid">
+        <div><label>Email</label><input id="aEmail" type="email"></div>
+        <div><label>Temporary Password</label><input id="aPass" type="password" autocomplete="new-password"></div>
+      </div>
+      <button class="btn btn-green" style="margin-top:16px" onclick="registerAdmin()">Create Admin Account</button>
+    </div>
+
     <h3 id="admin-dealers" class="admin-target" style="margin-bottom:10px">Registered Dealers</h3>
-    <table id="dealerTable"><thead><tr><th>Yard Name</th><th>Email</th><th>Cars Listed</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
+    <table id="dealerTable"><thead><tr><th>Yard Name</th><th>Email</th><th>Phone</th><th>WhatsApp</th><th>Location</th><th>Cars</th><th>Actions</th></tr></thead><tbody></tbody></table>
 
     <h3 id="admin-listings" class="admin-target" style="margin:26px 0 10px">All Car Listings</h3>
-    <table id="adminCarsTable"><thead><tr><th>Car</th><th>Dealer</th><th>Price</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
+    <table id="adminCarsTable"><thead><tr><th>Car</th><th>Dealer</th><th>Price</th><th>Status</th><th>Photos</th><th>Action</th></tr></thead><tbody></tbody></table>
 
     <h3 id="admin-appointments" class="admin-target" style="margin:26px 0 10px">Viewing Requests</h3>
     <table id="adminApptTable"><thead><tr><th>Buyer</th><th>Car</th><th>Date</th><th>Phone</th><th>Status</th></tr></thead><tbody></tbody></table>
 
     <h3 id="admin-approvals" class="admin-target" style="margin:26px 0 10px">Pending Approvals</h3>
     <table id="adminApprovalTable"><thead><tr><th>Car</th><th>Dealer</th><th>Price</th><th>Status</th></tr></thead><tbody></tbody></table>
+
+    <h3 id="admin-sales" class="admin-target" style="margin:26px 0 10px">Dealer Sales</h3>
+    <table id="adminSalesTable"><thead><tr><th>Dealer</th><th>Car</th><th>Amount</th><th>Date</th><th>Notes</th></tr></thead><tbody></tbody></table>
   </section>
 </div>
 
@@ -175,7 +208,8 @@
 <div class="modal-bg" id="carModal">
   <div class="modal">
     <div class="modal-body" style="padding:0">
-      <img class="m-img" id="mImg" src="">
+      <img class="m-img" id="mImg" src="" alt="">
+      <div class="photo-thumbnails" id="mPhotos"></div>
       <div style="padding:22px 28px">
         <span class="close-x" onclick="closeModal()">×</span>
         <h2 id="mTitle"></h2>
@@ -212,8 +246,8 @@
 </footer>
 
 <!-- Your Scripts -->
-<script src="js/supabase.js"></script>
-<script src="js/api.js"></script>
-<script src="js/app.js"></script>
+<script src="supabase.js"></script>
+<script src="api.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

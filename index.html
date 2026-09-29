@@ -1,253 +1,224 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VroomMarket — Buy & Sell Cars in Your Area</title>
-<link rel="stylesheet" href="style.css">
-<!-- Supabase Client Library -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VroomMarket — Buy & Sell Cars</title>
+<style>
+:root{--g:#1b5e20;--g2:#2e7d32;--d:#121a12;--bg:#f4f6f4;--a:#ffc107;--r:#b71c1c}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
+body{color:#2b2b2b;background:#fff}img{max-width:100%;display:block}
+header{background:var(--d);position:sticky;top:0;z-index:50}
+.nav{max-width:1200px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:12px 20px;flex-wrap:wrap;gap:8px}
+.logo{font-size:26px;font-weight:800;color:#fff}.logo span{color:var(--a)}
+.nav a{color:#ddd;margin-left:20px;cursor:pointer;font-size:15px}.nav a:hover{color:var(--a)}
+.hero{background:linear-gradient(rgba(10,20,10,.75),rgba(10,20,10,.75)),url(https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1400) center/cover;color:#fff;text-align:center;padding:70px 20px 50px}
+.hero h1{font-size:40px;margin-bottom:8px}.hero p{color:#cfe3cf;margin-bottom:24px}
+.filters{max-width:900px;margin:auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px}
+section{max-width:1200px;margin:auto;padding:36px 20px}
+.t{font-size:26px;margin-bottom:6px}.sub{color:#777;margin-bottom:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.card{border-radius:12px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.12);cursor:pointer;position:relative;background:#fff}
+.card img{height:170px;width:100%;object-fit:cover}.cb{padding:14px}.cb h3{font-size:17px}
+.price{color:var(--g);font-weight:800;font-size:19px}.was{color:#999;text-decoration:line-through;font-size:13px;margin-left:6px}
+.meta{font-size:13px;color:#777;margin-top:4px}
+.tag{position:absolute;top:10px;left:10px;background:var(--a);font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px}
+.tag.s{left:auto;right:10px;background:var(--r);color:#fff}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ccc;border-radius:7px;font-size:14px}
+label{font-size:13px;font-weight:600;display:block;margin:10px 0 3px;color:#444}
+.btn{padding:11px 20px;border:0;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;background:var(--g);color:#fff}
+.btn:hover{background:var(--g2)}.o{background:#fff;border:2px solid var(--g);color:var(--g)}.o:hover{background:#eef6ee}
+.x{background:var(--r)}.wa{background:#25d366}.sm{padding:6px 10px;font-size:12px;margin:2px}
+.panel{background:var(--bg);border-radius:14px;padding:22px;margin-bottom:22px}
+.f4{display:grid;grid-template-columns:repeat(4,1fr);gap:0 14px}
+table{width:100%;border-collapse:collapse;background:#fff;margin-bottom:26px;display:block;overflow-x:auto}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid #eee;font-size:13px;white-space:nowrap}
+th{background:var(--d);color:#fff;font-size:12px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 20px}.tabs button{padding:9px 16px;border:0;border-radius:20px;background:var(--bg);font-weight:700;cursor:pointer}
+.tabs .on{background:var(--g);color:#fff}
+.stats{display:flex;gap:14px;flex-wrap:wrap;margin:16px 0}.stat{background:var(--g);color:#fff;border-radius:10px;padding:14px 20px;min-width:140px}.stat b{font-size:24px;display:block}
+.pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:#e8f5e9;color:var(--g)}.pill.p{background:#fff8e1;color:#8a6d00}.pill.b{background:#fdecea;color:var(--r)}
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;justify-content:center;align-items:center;padding:16px}.mbg.on{display:flex}
+.modal{background:#fff;border-radius:14px;max-width:820px;width:100%;max-height:92vh;overflow:auto}
+.mi{width:100%;height:320px;object-fit:cover}.th{display:flex;gap:6px;padding:8px;background:var(--bg);overflow-x:auto}.th img{width:70px;height:50px;object-fit:cover;border-radius:5px;cursor:pointer}
+.mb{padding:20px 26px}.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;background:var(--bg);padding:14px;border-radius:10px;margin:12px 0;font-size:14px}.specs b{display:block;font-size:11px;color:#666}
+.slots{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.slot{padding:7px 12px;border:1px solid var(--g);border-radius:6px;cursor:pointer;background:#fff;font-size:13px}.slot.on{background:var(--g);color:#fff}.slot.off{opacity:.35;pointer-events:none;text-decoration:line-through}
+.float{position:fixed;right:18px;bottom:18px;background:#25d366;color:#fff;width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 14px rgba(0,0,0,.35);z-index:60;cursor:pointer}
+.stars span{cursor:pointer;font-size:24px;color:#ccc}.stars span.on{color:var(--a)}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;color:#fff;padding:12px 20px;border-radius:8px;z-index:200;display:none;max-width:90%}
+.hide{display:none!important}footer{background:var(--d);color:#aaa;text-align:center;padding:24px;font-size:14px}
+@media(max-width:800px){.filters,.f4{grid-template-columns:1fr 1fr}.hero h1{font-size:28px}.mi{height:220px}}
+@media(max-width:480px){.filters,.f4{grid-template-columns:1fr}}
+section{max-width:1280px}
+.tabs{border-bottom:2px solid #e3e8e3;gap:4px;margin-bottom:22px}.tabs button{background:none;border-radius:8px 8px 0 0;padding:11px 18px;color:#555}.tabs .on{background:#fff;color:var(--g);border-bottom:3px solid var(--g);margin-bottom:-2px}
+.stat{background:#fff!important;color:#333;border:1px solid #e3e8e3;border-left:5px solid var(--g);box-shadow:0 2px 8px rgba(0,0,0,.05);min-width:170px}.stat b{color:var(--g);font-size:30px}
+table{border:1px solid #e3e8e3;border-radius:10px}tbody tr:nth-child(even){background:#fafcfa}tbody tr:hover{background:#eef6ee}th{background:#1b2a1b}
+.panel{border:1px solid #e3e8e3;background:#f8faf8}
+</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></head><body>
+<header><div class="nav"><div class="logo">Vroom<span>Market</span></div><nav><a onclick="go('home')">Home</a><a id="navDash" class="hide" onclick="go('dash')">Dashboard</a><a id="navIn" onclick="go('login')">Dealer Login</a><a id="navOut" class="hide" onclick="logout()">Logout</a></nav></div></header>
+<div id="app"></div>
+<div class="float" onclick="waChat()" title="Chat on WhatsApp">💬</div>
+<div class="mbg" id="mbg" onclick="if(event.target===this)closeM()"><div class="modal" id="modal"></div></div>
+<div id="toast"></div>
+<footer><b style="color:#fff">VroomMarket</b> — Connecting local car yards with buyers © 2026</footer>
+<script>
+const K='vm_db_v1',$=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const IMG='https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=800',KES=n=>'KES '+Number(n).toLocaleString();
+const ADMIN={email:'admin@vroom.com',pass:'admin123'};
+let db={cars:[],bookings:[],inquiries:[],sales:[],ratings:[],dealers:[],log:[]},me=null,tab='cars',F={};
+const SB_URL='https://coiokslrfqjomznwhypf.supabase.co',SB_KEY='sb_publishable_E7N77hbdBSHCI76kPYcbbg_0TsR_IUs',sb=supabase.createClient(SB_URL,SB_KEY);
+function seed(){const mk=(id,d,make,model,year,price,cond,mile,color,f)=>({id,dealer:d,make,model,year,price,old:0,cond,mile,fuel:'Petrol',trans:'Automatic',color,desc:'Clean, well maintained, full service history.',photos:[],status:'Available',featured:!!f,archived:false,syndicated:false});
+return{dealers:[{id:'d1',name:'Thika Road Motors',email:'dealer@vroom.com',pass:'dealer123',phone:'0712000001',wa:'254712000001',loc:'Thika Road, Nairobi'},{id:'d2',name:'Mombasa Auto Hub',email:'hub@vroom.com',pass:'dealer123',phone:'0722000002',wa:'254722000002',loc:'Nyali, Mombasa'}],
+cars:[mk(1,'d1','Toyota','Corolla',2018,1450000,'Foreign Used',62000,'White',1),mk(2,'d1','Honda','Fit',2016,890000,'Locally Used',88000,'Silver'),mk(3,'d2','Nissan','X-Trail',2019,2350000,'Foreign Used',45000,'Black',1),mk(4,'d2','Subaru','Forester',2017,1950000,'Foreign Used',70000,'Blue'),mk(5,'d1','Mazda','CX-5',2021,3400000,'New',0,'Red'),mk(6,'d2','Mercedes','C200',2015,2100000,'Foreign Used',96000,'Grey')],
+bookings:[],inquiries:[],sales:[],ratings:[],log:[]}}
+function save(){try{localStorage.setItem(K,JSON.stringify(db))}catch(e){toast('Storage full — use smaller photos')}}
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3500)}
+const dealer=id=>db.dealers.find(d=>d.id===id)||{name:'—'},car=id=>db.cars.find(c=>c.id==id)||{make:'(removed)',model:''},title=c=>`${c.year||''} ${c.make} ${c.model}`.trim();
+const rating=id=>{const r=db.ratings.filter(x=>x.dealer===id);return r.length?(r.reduce((a,b)=>a+b.stars,0)/r.length).toFixed(1)+'★ ('+r.length+')':'No ratings'};
+function go(v){$('app').innerHTML='';({home,login,dash})[v]();scrollTo(0,0)}
+function nav(){const l=!!me;$('navDash').classList.toggle('hide',!l);$('navOut').classList.toggle('hide',!l);$('navIn').classList.toggle('hide',l)}
+/* ---------- PUBLIC ---------- */
+function home(){$('app').innerHTML=`<div class="hero"><h1>Find Your Next Car</h1><p>Trusted local car yards. One marketplace. Zero hassle.</p>
+<div class="filters"><input id="fq" placeholder="Make or model, e.g. Toyota" oninput="list()"><select id="fp" onchange="list()"><option value="0">Any price</option><option value="500000">Below 500K</option><option value="1000000">Below 1M</option><option value="2000000">Below 2M</option><option value="99999999">Above 2M</option></select><select id="fc" onchange="list()"><option value="">Any condition</option><option>New</option><option>Foreign Used</option><option>Locally Used</option></select><select id="fs" onchange="list()"><option value="f">Featured first</option><option value="pl">Price low–high</option><option value="ph">Price high–low</option><option value="y">Newest year</option></select><button class="btn o" onclick="['fq','fp','fc'].forEach(i=>$(i).value=i=='fp'?0:'');list()">Clear</button></div></div>
+<section><h2 class="t">🚗 Cars for sale</h2><p class="sub" id="cnt"></p><div class="grid" id="grid"></div></section>`;list()}
+function list(){const q=$('fq').value.toLowerCase(),p=+$('fp').value,c=$('fc').value,s=$('fs').value;
+let r=db.cars.filter(x=>!x.archived&&!dealer(x.dealer).archived&&x.status!=='Sold'&&(!q||(x.make+' '+x.model).toLowerCase().includes(q))&&(!c||x.cond===c)&&(!p||(p==99999999?x.price>2000000:x.price<=p)));
+r.sort((a,b)=>s==='pl'?a.price-b.price:s==='ph'?b.price-a.price:s==='y'?b.year-a.year:(b.featured-a.featured));
+$('cnt').textContent=r.length+' car(s) found';
+$('grid').innerHTML=r.map(x=>`<div class="card" onclick="openCar(${x.id})">${x.featured?'<span class="tag">⭐ Featured</span>':''}${x.status!=='Available'?`<span class="tag s">${x.status}</span>`:''}<img src="${x.photos[0]||IMG}" alt=""><div class="cb"><h3>${esc(title(x))}</h3><span class="price">${KES(x.price)}</span>${x.old?`<span class="was">${KES(x.old)}</span>`:''}${x.promo?`<div class="pill b" style="margin-top:6px;display:inline-block">${esc(x.promo)}</div>`:''}<div class="meta">${esc(x.cond)} · ${Number(x.mile).toLocaleString()} km · ${esc(x.trans)}</div><div class="meta">🏢 ${esc(dealer(x.dealer).name)} · ${rating(x.dealer)}</div></div></div>`).join('')||'<p class="sub">No cars match. Clear the filters to see everything.</p>'}
+let cur=null,slot='';
+function openCar(id){cur=db.cars.find(c=>c.id==id);const x=cur,d=dealer(x.dealer),ph=x.photos.length?x.photos:[IMG];slot='';
+$('modal').innerHTML=`<img class="mi" id="mi" src="${ph[0]}" alt=""><div class="th">${ph.map(p=>`<img src="${p}" onclick="$('mi').src=this.src" alt="">`).join('')}</div><div class="mb"><button class="btn o sm" style="float:right" onclick="closeM()">✕ Close</button>
+<h2>${esc(title(x))}</h2><span class="price">${KES(x.price)}</span>${x.old?`<span class="was">${KES(x.old)}</span>`:''} ${x.promo?`<span class="pill b">${esc(x.promo)}</span>`:''}
+<div class="specs"><div><b>CONDITION</b>${esc(x.cond)}</div><div><b>MILEAGE</b>${Number(x.mile).toLocaleString()} km</div><div><b>FUEL</b>${esc(x.fuel)}</div><div><b>TRANSMISSION</b>${esc(x.trans)}</div><div><b>COLOR</b>${esc(x.color||'—')}</div><div><b>STATUS</b>${x.status}</div></div>
+<p>${esc(x.desc)}</p><p style="margin:10px 0;color:#555">🏢 <b>${esc(d.name)}</b> · 📍 ${esc(d.loc)} · ${rating(d.id)}</p>
+<div class="actions" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="$('bk').classList.toggle('hide');drawSlots()">📅 Schedule a view</button><button class="btn wa" onclick="window.open('https://wa.me/${d.wa}?text='+encodeURIComponent('Hi, I am interested in the ${esc(title(x))}'))">💬 WhatsApp</button><a class="btn o" style="text-decoration:none" href="tel:${d.phone}">📞 Call</a><button class="btn o" onclick="$('iq').classList.toggle('hide')">✉️ Enquire / trade-in</button></div>
+<div id="bk" class="panel hide" style="margin-top:14px"><h3>Pick a date and time</h3><div class="f4" style="grid-template-columns:1fr 1fr"><div><label>Your name</label><input id="bn"></div><div><label>Phone</label><input id="bp" type="tel"></div><div><label>Date</label><input id="bd" type="date" min="${new Date().toISOString().slice(0,10)}" onchange="drawSlots()"></div></div><label>Time slot</label><div class="slots" id="slots"></div><label>Message (optional)</label><textarea id="bm" rows="2"></textarea><button class="btn" style="margin-top:12px" onclick="book()">Confirm request</button></div>
+<div id="iq" class="panel hide" style="margin-top:14px"><h3>Send an enquiry</h3><label>Type</label><select id="it"><option>Question</option><option>Trade-in offer</option><option>Test drive</option></select><label>Name</label><input id="in"><label>Phone / email</label><input id="ip"><label>Message</label><textarea id="im" rows="3"></textarea><button class="btn" style="margin-top:12px" onclick="enquire()">Send</button></div>
+<div style="margin-top:16px"><b>Rate this dealer:</b> <span class="stars" id="stars">${[1,2,3,4,5].map(n=>`<span onclick="rate(${n})">★</span>`).join('')}</span></div></div>`;$('mbg').classList.add('on')}
+function closeM(){$('mbg').classList.remove('on')}
+function drawSlots(){const dt=$('bd')?.value,T=['09:00','10:00','11:00','12:00','14:00','15:00','16:00','17:00'];
+$('slots').innerHTML=T.map(t=>{const taken=db.bookings.some(b=>b.dealer===cur.dealer&&b.date===dt&&b.time===t&&b.status==='Approved');return `<div class="slot ${taken?'off':''} ${slot===t?'on':''}" onclick="slot='${t}';drawSlots()">${t}</div>`}).join('')}
+function book(){const n=$('bn').value.trim(),p=$('bp').value.trim(),d=$('bd').value;if(!n||!p||!d||!slot)return toast('Enter name, phone, date and a time slot');
+db.bookings.push({id:Date.now(),car:cur.id,dealer:cur.dealer,name:n,phone:p,date:d,time:slot,msg:$('bm').value,status:'Pending',created:new Date().toISOString()});save();closeM();toast('Viewing requested. The dealer will confirm by SMS/email.')}
+function enquire(){const m=$('im').value.trim();if(!$('in').value.trim()||!m)return toast('Enter your name and message');db.inquiries.push({id:Date.now(),car:cur.id,dealer:cur.dealer,type:$('it').value,name:$('in').value,contact:$('ip').value,msg:m,date:new Date().toISOString().slice(0,10),read:false});save();closeM();toast('Enquiry sent to the dealer')}
+function rate(n){[...$('stars').children].forEach((s,i)=>s.classList.toggle('on',i<n));const k='vm_r_'+cur.dealer;if(localStorage.getItem(k))return toast('You already rated this dealer');db.ratings.push({dealer:cur.dealer,stars:n});localStorage.setItem(k,1);save();toast('Thanks for rating!')}
+function waChat(){window.open('https://chat.whatsapp.com/FEDHergKFoFLVMIVGCjI3i','_blank','noopener')}
+/* ---------- AUTH ---------- */
+function login(){$('app').innerHTML=`<section style="max-width:440px"><h2 class="t">Dealer / Admin login</h2><p class="sub">Dealers receive credentials from the VroomMarket admin.</p><div class="panel"><label>Email</label><input id="le" type="email"><label>Password</label><input id="lp" type="password" onkeydown="if(event.key=='Enter')doLogin()"><div style="margin-top:16px"><button class="btn" onclick="doLogin()">Login</button></div></div></section>`}
+function doLogin(){const e=$('le').value.trim().toLowerCase(),p=$('lp').value;
+if(e===ADMIN.email&&p===ADMIN.pass)me={role:'admin',email:e};else{const d=db.dealers.find(d=>d.email.toLowerCase()===e&&d.pass===p);if(!d)return toast('Wrong email or password');me={role:'dealer',id:d.id,email:e}}
+sessionStorage.setItem('vm_me',JSON.stringify(me));tab=me.role==='admin'?'cars':'inv';nav();go('dash')}
+function logout(){me=null;sessionStorage.removeItem('vm_me');nav();go('home')}
+/* ---------- DASHBOARD ---------- */
+const A=me=>me&&(me.role==='admin'||me.role==='staff'),mine=a=>A(me)?a:a.filter(x=>x.dealer===me.id);
+function dash(){if(!me)return go('login');let T=A(me)?[['cars','Listings'],['book','Bookings'],['inq','Inquiries'],['dealers','Dealers'],['reports','Reports & export']]:[['inv','Inventory'],['add','Add vehicle'],['book','Reservations'],['inq','Customers'],['sales','Sales'],['reports','Reports']];
+if(me.role==='admin')T.push(['users','Users & roles']);else if(me.role==='staff')T=T.filter(t=>(me.perms||{})[t[0]]);
+if(!T.length){$('app').innerHTML='<section><h2 class="t">No access yet</h2><p class="sub">Ask the admin to give your account permissions.</p></section>';return}
+if(!T.find(t=>t[0]===tab))tab=T[0][0];
+const cs=mine(db.cars),bs=mine(db.bookings);
+$('app').innerHTML=`<section><h2 class="t">${A(me)?'⚙️ Admin dashboard':'🏢 '+esc(dealer(me.id).name)}</h2><div class="stats"><div class="stat"><b>${cs.length}</b>Vehicles</div><div class="stat" style="background:#8a6d00"><b>${bs.filter(b=>b.status==='Pending').length}</b>Pending bookings</div><div class="stat" style="background:#1565c0"><b>${mine(db.inquiries).filter(i=>!i.read).length}</b>New inquiries</div><div class="stat" style="background:#b71c1c"><b>${mine(db.sales).length}</b>Sales</div></div>
+<div class="tabs">${T.map(t=>`<button class="${t[0]===tab?'on':''}" onclick="tab='${t[0]}';dash()">${t[1]}</button>`).join('')}</div><div id="tabBody"></div></section>`;
+({users:usersT,cars:invT,inv:invT,add:addT,book:bookT,inq:inqT,dealers:dealersT,sales:salesT,reports:repT})[tab]()}
+const tb=(h,rows)=>`<table><thead><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr></thead><tbody>${rows.join('')||`<tr><td colspan="${h.length}">Nothing here yet.</td></tr>`}</tbody></table>`;
+const st=s=>`<span class="pill ${s==='Available'||s==='Approved'?'':s==='Pending'||s==='Reserved'?'p':'b'}">${s}</span>`;
+function invT(){$('tabBody').innerHTML=tb(['Car','Dealer','Price','Status','Flags','Actions'],mine(db.cars).map(c=>`<tr><td>${esc(title(c))}</td><td>${esc(dealer(c.dealer).name)}</td><td>${KES(c.price)}${c.old?`<br><s>${KES(c.old)}</s>`:''}</td><td><select onchange="setC(${c.id},'status',this.value)" style="width:auto">${['Available','Reserved','In Service','Sold'].map(s=>`<option ${s===c.status?'selected':''}>${s}</option>`).join('')}</select></td><td>${c.featured?'⭐ ':''}${c.archived?'📦 archived ':''}${c.syndicated?'📡 syndicated':''}</td><td><button class="btn sm o" onclick="editC(${c.id})">Edit</button><button class="btn sm o" onclick="reprice(${c.id})">Reprice</button><button class="btn sm o" onclick="setC(${c.id},'featured',${!c.featured})">${c.featured?'Unfeature':'Feature'}</button><button class="btn sm o" onclick="setC(${c.id},'archived',${!c.archived})">${c.archived?'Restore':'Archive'}</button><button class="btn sm wa" onclick="syn(${c.id})">Syndicate</button><button class="btn sm x" onclick="delC(${c.id})">Delete</button></td></tr>`))}
+function setC(id,k,v){car(id)[k]=v;save();dash()}
+function delC(id){if(confirm('Delete this listing permanently?')){db.cars=db.cars.filter(c=>c.id!=id);save();dash()}}
+function syn(id){const c=car(id);c.syndicated=true;db.log.push({t:new Date().toISOString(),m:'Syndicated '+title(c)});save();toast('Queued for partner marketplaces (connect real APIs later)');dash()}
+function reprice(id){const c=car(id),p=prompt('New price (KES):',c.price);if(!p||isNaN(p))return;const pr=prompt('Promotion label (optional), e.g. "10% off until Sunday":',c.promo||'')||'';if(+p<c.price)c.old=c.old||c.price;else c.old=0;c.price=+p;c.promo=pr;save();dash()}
+function editC(id){const c=car(id);$('modal').innerHTML=`<div class="mb"><h3>Edit ${esc(title(c))}</h3><div class="f4" style="grid-template-columns:1fr 1fr">${[['make','Make'],['model','Model'],['year','Year','number'],['price','Price','number'],['mile','Mileage','number'],['color','Color']].map(f=>`<div><label>${f[1]}</label><input id="e_${f[0]}" type="${f[2]||'text'}" value="${esc(c[f[0]])}"></div>`).join('')}</div><label>Description</label><textarea id="e_desc" rows="3">${esc(c.desc)}</textarea><div style="margin-top:14px"><button class="btn" onclick="saveEdit(${id})">Save</button> <button class="btn o" onclick="closeM()">Cancel</button></div></div>`;$('mbg').classList.add('on')}
+function saveEdit(id){const c=car(id);['make','model','year','price','mile','color','desc'].forEach(k=>c[k]=['year','price','mile'].includes(k)?+$('e_'+k).value:$('e_'+k).value);save();closeM();dash()}
+function addT(){$('tabBody').innerHTML=`<div class="panel"><div class="f4"><div><label>Make</label><input id="a_make"></div><div><label>Model</label><input id="a_model"></div><div><label>Year</label><input id="a_year" type="number"></div><div><label>Price (KES)</label><input id="a_price" type="number"></div><div><label>Condition</label><select id="a_cond"><option>New</option><option>Foreign Used</option><option>Locally Used</option></select></div><div><label>Mileage (km)</label><input id="a_mile" type="number"></div><div><label>Fuel</label><select id="a_fuel"><option>Petrol</option><option>Diesel</option><option>Hybrid</option></select></div><div><label>Transmission</label><select id="a_trans"><option>Automatic</option><option>Manual</option></select></div></div><label>Color</label><input id="a_color"><label>Photos</label><input id="a_ph" type="file" accept="image/*" multiple><label>Description</label><textarea id="a_desc" rows="3"></textarea><button class="btn" style="margin-top:14px" onclick="addCar()">Publish listing</button></div>`}
+const shrink=f=>new Promise(r=>{const fr=new FileReader();fr.onload=()=>{const i=new Image();i.onload=()=>{const s=Math.min(1,800/i.width),c=document.createElement('canvas');c.width=i.width*s;c.height=i.height*s;c.getContext('2d').drawImage(i,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',.7))};i.src=fr.result};fr.readAsDataURL(f)});
+async function addCar(){const g=k=>$('a_'+k).value.trim();if(!g('make')||!g('model')||!g('price'))return toast('Make, model and price are required');
+const photos=await Promise.all([...$('a_ph').files].slice(0,5).map(shrink));
+db.cars.push({id:Date.now(),dealer:A(me)?db.dealers[0].id:me.id,make:g('make'),model:g('model'),year:+g('year'),price:+g('price'),old:0,cond:g('cond'),mile:+g('mile')||0,fuel:g('fuel'),trans:g('trans'),color:g('color'),desc:g('desc'),photos,status:'Available',featured:false,archived:false,syndicated:false});save();toast('Listing published');tab='inv';dash()}
+function bookT(){$('tabBody').innerHTML=tb(['Buyer','Phone','Car','Date','Time','Status','Actions'],mine(db.bookings).map(b=>`<tr><td>${esc(b.name)}</td><td>${esc(b.phone)}</td><td>${esc(title(car(b.car)))}</td><td>${b.date}</td><td>${b.time}</td><td>${st(b.status)}</td><td>${b.status==='Pending'?`<button class="btn sm" onclick="decide(${b.id},'Approved')">Approve</button><button class="btn sm x" onclick="decide(${b.id},'Rejected')">Reject</button>`:'—'}</td></tr>`))}
+function decide(id,s){const b=db.bookings.find(x=>x.id===id);
+if(s==='Approved'&&db.bookings.some(o=>o.id!==id&&o.dealer===b.dealer&&o.date===b.date&&o.time===b.time&&o.status==='Approved'))return toast('Staff/keys already booked for that slot — reject or ask buyer to pick another time');
+b.status=s;db.log.push({t:new Date().toISOString(),m:`SMS/email to ${b.phone}: viewing ${s.toLowerCase()} for ${title(car(b.car))} on ${b.date} ${b.time}`});save();toast(`Buyer notified (${s}). Real SMS needs a provider like Africa's Talking.`);dash()}
+function inqT(){mine(db.inquiries).forEach(i=>i.read=true);save();$('tabBody').innerHTML=tb(['Date','Type','From','Contact','Car','Message'],mine(db.inquiries).map(i=>`<tr><td>${i.date}</td><td>${esc(i.type)}</td><td>${esc(i.name)}</td><td>${esc(i.contact)}</td><td>${esc(title(car(i.car)))}</td><td style="white-space:normal;min-width:200px">${esc(i.msg)}</td></tr>`))}
+function dealersT(){$('tabBody').innerHTML=`<div class="panel"><h3>Register a dealer</h3><div class="f4">${['name:Yard name','email:Email','pass:Password','phone:Phone','wa:WhatsApp (2547…)','loc:Location'].map(x=>{const[k,l]=x.split(':');return `<div><label>${l}</label><input id="d_${k}"></div>`}).join('')}</div><button class="btn" style="margin-top:14px" onclick="addDealer()">Create dealer</button></div>`+tb(['Yard','Email','Phone','Location','Rating','Cars',''],db.dealers.map(d=>`<tr><td>${esc(d.name)}</td><td>${esc(d.email)}</td><td>${esc(d.phone)}</td><td>${esc(d.loc)}</td><td>${rating(d.id)}</td><td>${db.cars.filter(c=>c.dealer===d.id).length}</td><td><button class="btn sm x" onclick="rmDealer('${d.id}')">Remove</button></td></tr>`))}
+function addDealer(){const v=k=>$('d_'+k).value.trim();if(!v('name')||!v('email')||!v('pass'))return toast('Name, email and password required');db.dealers.push({id:'d'+Date.now(),name:v('name'),email:v('email'),pass:v('pass'),phone:v('phone'),wa:v('wa'),loc:v('loc')});save();dash()}
+function salesT(){$('tabBody').innerHTML=`<div class="panel"><h3>Record a sale</h3><div class="f4"><div><label>Car</label><select id="s_car">${mine(db.cars).filter(c=>c.status!=='Sold').map(c=>`<option value="${c.id}">${esc(title(c))}</option>`).join('')}</select></div><div><label>Sale price</label><input id="s_amt" type="number"></div><div><label>Date</label><input id="s_date" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div><label>Buyer / notes</label><input id="s_note"></div></div><button class="btn" style="margin-top:14px" onclick="recSale()">Record sale</button></div>`+tb(['Car','Amount','Date','Notes'],mine(db.sales).map(s=>`<tr><td>${esc(s.title)}</td><td>${KES(s.amount)}</td><td>${s.date}</td><td>${esc(s.note)}</td></tr>`))}
+function recSale(){const c=car($('s_car').value);if(!c.id||!$('s_amt').value)return toast('Pick a car and amount');c.status='Sold';db.sales.push({id:Date.now(),dealer:c.dealer,car:c.id,title:title(c),amount:+$('s_amt').value,date:$('s_date').value,note:$('s_note').value});save();dash()}
+function repT(){const tot=mine(db.sales).reduce((a,s)=>a+s.amount,0);$('tabBody').innerHTML=`<div class="panel"><h3>Revenue: ${KES(tot)}</h3><p class="sub">Download your data as CSV, or open a printable report and choose "Save as PDF".</p>${['sales','cars','bookings','inquiries'].map(k=>`<button class="btn sm o" onclick="csv('${k}')">CSV: ${k}</button><button class="btn sm" onclick="pdf('${k}')">PDF: ${k}</button> `).join('')}${A(me)?`<button class="btn sm o" onclick="csv('log')">CSV: activity log</button>`:''}</div>`}
+const rows=k=>{const d=k==='log'?db.log:mine(db[k]);return d.map(r=>{const o={...r};delete o.photos;delete o.desc;return o})};
+function csv(k){const r=rows(k);if(!r.length)return toast('No data to export');const h=Object.keys(r[0]),q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';const t=[h.join(','),...r.map(o=>h.map(x=>q(o[x])).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download=`vroommarket-${k}.csv`;a.click()}
+function pdf(k){const r=rows(k);if(!r.length)return toast('No data to export');const h=Object.keys(r[0]),w=open('','_blank');w.document.write(`<title>${k} report</title><style>body{font-family:Arial;padding:20px}table{border-collapse:collapse;width:100%;font-size:11px}td,th{border:1px solid #ccc;padding:4px}</style><h2>VroomMarket — ${k} report (${new Date().toLocaleDateString()})</h2><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${r.map(o=>`<tr>${h.map(x=>`<td>${esc(o[x])}</td>`).join('')}</tr>`).join('')}</table>`);w.document.close();w.print()}
 
-<header>
-  <div class="nav">
-    <div class="logo">Vroom<span>Market</span></div>
-    <nav>
-      <a onclick="showView('home')">Home</a>
-      <a onclick="showView('buy')">Buy a Car</a>
-      <a onclick="showView('login')">Dealer Login</a>
-      <a class="btn-login" onclick="showView('login')">Login</a>
-    </nav>
-  </div>
-</header>
+async function refresh(){const T=['cars','bookings','inquiries','sales','ratings'],r=await Promise.all([...T.map(t=>sb.from(t).select('*')),sb.from('profiles').select('*').eq('role','dealer')]);
+const e=r.find(x=>x.error);if(e)toast(e.error.message);
+db={cars:(r[0].data||[]).map(c=>({...c,desc:c.descr,photos:c.photos||[]})),bookings:r[1].data||[],inquiries:(r[2].data||[]).map(i=>({...i,date:(i.created||'').slice(0,10)})),sales:r[3].data||[],ratings:r[4].data||[],dealers:(r[5].data||[]).map(d=>({...d,email:d.email||'—'})),log:[]}}
+async function boot(){try{await refresh();const{data:{session}}=await sb.auth.getSession();if(session){const{data:p}=await sb.from('profiles').select('*').eq('id',session.user.id).maybeSingle();if(p&&!p.restricted)me={role:p.role,id:session.user.id,email:session.user.email,perms:p.perms||{}}}}catch(e){toast('Cannot reach Supabase: '+e.message)}nav();me?go('dash'):go('home')}
+const run=async p=>{const{error}=await p;if(error){toast(error.message);return false}await refresh();return true};
+function save(){}
+async function doLogin(){const{data,error}=await sb.auth.signInWithPassword({email:$('le').value.trim(),password:$('lp').value});if(error)return toast(/fetch|network/i.test(error.message)?'Cannot reach Supabase. Open the site from Live Server (127.0.0.1:5501), not the Claude preview, and check the project is not paused.':error.message);
+const{data:p}=await sb.from('profiles').select('*').eq('id',data.user.id).maybeSingle();if(!p){await sb.auth.signOut();return toast('This account has no dealer/admin profile yet')}if((p.archived||p.restricted)&&p.role!=='admin'){await sb.auth.signOut();return toast('This dealer account is archived. Contact the admin.')}
+me={role:p.role,id:data.user.id,email:data.user.email,perms:p.perms||{}};tab=me.role==='admin'?'cars':'inv';await refresh();nav();go('dash')}
+function logout(){sb.auth.signOut();me=null;nav();go('home')}
+async function setC(id,k,v){if(await run(sb.from('cars').update({[k]:v}).eq('id',id)))dash()}
+async function delC(id){if(confirm('Delete this listing permanently?')&&await run(sb.from('cars').delete().eq('id',id)))dash()}
+async function syn(id){if(await run(sb.from('cars').update({syndicated:true}).eq('id',id))){toast('Queued for partner marketplaces (real APIs come later)');dash()}}
+async function reprice(id){const c=car(id),p=prompt('New price (KES):',c.price);if(!p||isNaN(p))return;const pr=prompt('Promotion label (optional):',c.promo||'')||'';if(await run(sb.from('cars').update({price:+p,old:+p<c.price?(c.old||c.price):0,promo:pr}).eq('id',id)))dash()}
+async function saveEdit(id){const g=k=>$('e_'+k).value;if(await run(sb.from('cars').update({make:g('make'),model:g('model'),year:+g('year'),price:+g('price'),mile:+g('mile'),color:g('color'),descr:g('desc')}).eq('id',id))){closeM();dash()}}
+async function addCar(){const g=k=>$('a_'+k).value.trim();if(!g('make')||!g('model')||!g('price'))return toast('Make, model and price are required');
+const photos=await Promise.all([...$('a_ph').files].slice(0,5).map(shrink));
+if(await run(sb.from('cars').insert({dealer:A(me)?null:me.id,make:g('make'),model:g('model'),year:+g('year')||null,price:+g('price'),cond:g('cond'),mile:+g('mile')||0,fuel:g('fuel'),trans:g('trans'),color:g('color'),descr:g('desc'),photos}))){toast('Listing published');tab='inv';dash()}}
+async function book(){const n=$('bn').value.trim(),p=$('bp').value.trim(),d=$('bd').value;if(!n||!p||!d||!slot)return toast('Enter name, phone, date and a time slot');
+const{error}=await sb.from('bookings').insert({car:cur.id,dealer:cur.dealer,name:n,phone:p,date:d,time:slot,msg:$('bm').value});if(error)return toast(error.message);closeM();toast('Viewing requested. The dealer will confirm by SMS/email.')}
+async function enquire(){const m=$('im').value.trim();if(!$('in').value.trim()||!m)return toast('Enter your name and message');
+const{error}=await sb.from('inquiries').insert({car:cur.id,dealer:cur.dealer,type:$('it').value,name:$('in').value,contact:$('ip').value,msg:m});if(error)return toast(error.message);closeM();toast('Enquiry sent to the dealer')}
+async function rate(n){[...$('stars').children].forEach((s,i)=>s.classList.toggle('on',i<n));const k='vm_r_'+cur.dealer;if(localStorage.getItem(k))return toast('You already rated this dealer');
+const{error}=await sb.from('ratings').insert({dealer:cur.dealer,stars:n});if(error)return toast(error.message);localStorage.setItem(k,1);toast('Thanks for rating!')}
+async function decide(id,s){const b=db.bookings.find(x=>x.id===id);
+if(s==='Approved'&&db.bookings.some(o=>o.id!==id&&o.dealer===b.dealer&&o.date===b.date&&o.time===b.time&&o.status==='Approved'))return toast('Staff/keys already booked for that slot — reject or ask the buyer for another time');
+if(await run(sb.from('bookings').update({status:s}).eq('id',id))){toast(`Booking ${s.toLowerCase()}. Text/email to buyer needs an SMS provider (e.g. Africa's Talking).`);dash()}}
+async function addDealer(){const v=k=>$('d_'+k).value.trim();if(!v('name')||!v('email')||!v('pass'))return toast('Name, email and password required');
+const tmp=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false,autoRefreshToken:false}});const{data,error}=await tmp.auth.signUp({email:v('email'),password:v('pass')});
+if(error||!data.user)return toast(error?error.message:'Could not create user');
+if(await run(sb.from('profiles').insert({id:data.user.id,role:'dealer',name:v('name'),phone:v('phone'),wa:v('wa'),loc:v('loc')})))dash()}
+async function rmDealer(id){if(confirm('Remove this dealer profile?')&&await run(sb.from('profiles').delete().eq('id',id)))dash()}
+async function recSale(){const c=car($('s_car').value);if(!c.id||!$('s_amt').value)return toast('Pick a car and amount');
+const{error}=await sb.from('sales').insert({dealer:c.dealer,car:c.id,title:title(c),amount:+$('s_amt').value,date:$('s_date').value,note:$('s_note').value});if(error)return toast(error.message);
+if(await run(sb.from('cars').update({status:'Sold'}).eq('id',c.id)))dash()}
+const _inq=inqT;inqT=function(){const ids=mine(db.inquiries).filter(i=>!i.read).map(i=>i.id);_inq();if(ids.length)sb.from('inquiries').update({read:true}).in('id',ids).then(()=>{})};
 
-<!-- ================= PUBLIC VIEW ================= -->
-<div id="view-home">
-  <div class="hero">
-    <h1>Find Your Next Car in Your Area</h1>
-    <p>Trusted local car yards. One marketplace. Zero hassle.</p>
-    <div class="searchbar">
-      <input type="text" placeholder="Search make or model… e.g. Toyota Corolla">
-      <select><option>Any Make</option><option>Toyota</option><option>Honda</option><option>Nissan</option><option>Subaru</option><option>Mazda</option><option>Mercedes</option></select>
-      <select><option>Max Price</option><option>Below 500K</option><option>500K – 1M</option><option>1M – 2M</option><option>Above 2M</option></select>
-      <button onclick="alert('Demo: this would filter the listings below.')">Search</button>
-    </div>
-  </div>
+const dOpts=sel=>db.dealers.map(d=>`<option value="${d.id}" ${d.id===sel?'selected':''}>${esc(d.name)}</option>`).join('');
+const opt=(a,v)=>a.map(x=>`<option ${x===v?'selected':''}>${x}</option>`).join('');
+function dealersT(){$('tabBody').innerHTML=`<div class="panel"><h3>Add a new dealer</h3><div class="f4">${['name:Yard name','email:Email (login)','pass:Temporary password','phone:Phone','wa:WhatsApp (2547…)','loc:Location'].map(x=>{const[k,l]=x.split(':');return `<div><label>${l}</label><input id="d_${k}" ${k=='pass'?'type="password" autocomplete="new-password"':''}></div>`}).join('')}</div><button class="btn" style="margin-top:14px" onclick="addDealer()">Create dealer</button></div>`+tb(['Yard','Email','Phone','WhatsApp','Location','Rating','Cars','Status','Actions'],db.dealers.map(d=>`<tr><td><b>${esc(d.name)}</b></td><td>${esc(d.email)}</td><td>${esc(d.phone)}</td><td>${esc(d.wa)}</td><td>${esc(d.loc)}</td><td>${rating(d.id)}</td><td>${db.cars.filter(c=>c.dealer===d.id).length}</td><td>${d.archived?'<span class="pill b">Archived</span>':'<span class="pill">Active</span>'}</td><td><button class="btn sm o" onclick="editD('${d.id}')">Edit</button><button class="btn sm o" onclick="archD('${d.id}',${!d.archived})">${d.archived?'Restore':'Archive'}</button><button class="btn sm x" onclick="rmDealer('${d.id}')">Delete</button></td></tr>`))}
+async function addDealer(){const v=k=>$('d_'+k).value.trim();if(!v('name')||!v('email')||!v('pass'))return toast('Name, email and password required');if(v('pass').length<6)return toast('Password needs 6+ characters');
+const tmp=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false,autoRefreshToken:false}});const{data,error}=await tmp.auth.signUp({email:v('email'),password:v('pass')});
+if(error||!data.user)return toast(error?error.message:'Could not create user');
+if(await run(sb.from('profiles').insert({id:data.user.id,role:'dealer',name:v('name'),email:v('email'),phone:v('phone'),wa:v('wa'),loc:v('loc')}))){toast('Dealer created');dash()}}
+function editD(id){const d=dealer(id);$('modal').innerHTML=`<div class="mb"><h3>Edit dealer</h3><div class="f4" style="grid-template-columns:1fr 1fr">${['name:Yard name','email:Email','phone:Phone','wa:WhatsApp','loc:Location'].map(x=>{const[k,l]=x.split(':');return `<div><label>${l}</label><input id="ed_${k}" value="${esc(d[k]==='—'?'':d[k])}"></div>`}).join('')}</div><div style="margin-top:14px"><button class="btn" onclick="saveD('${id}')">Save</button> <button class="btn o" onclick="closeM()">Cancel</button></div></div>`;$('mbg').classList.add('on')}
+async function saveD(id){const g=k=>$('ed_'+k).value.trim();if(await run(sb.from('profiles').update({name:g('name'),email:g('email'),phone:g('phone'),wa:g('wa'),loc:g('loc')}).eq('id',id))){closeM();dash()}}
+async function archD(id,v){if(await run(sb.from('profiles').update({archived:v}).eq('id',id))){toast(v?'Dealer archived — their cars are hidden from the public site':'Dealer restored');dash()}}
+async function rmDealer(id){const n=db.cars.filter(c=>c.dealer===id).length;if(!confirm(`Delete this dealer${n?' and their '+n+' car listing(s)':''}? This cannot be undone. (Archive hides them instead.)`))return;
+if(n&&!await run(sb.from('cars').delete().eq('dealer',id)))return;if(await run(sb.from('profiles').delete().eq('id',id)))dash()}
+const _addT=addT;addT=function(){_addT();if(A(me))$('tabBody').querySelector('.panel').insertAdjacentHTML('afterbegin',`<label>Dealer</label><select id="a_dealer"><option value="">— choose dealer —</option>${dOpts()}</select>`)};
+async function addCar(){const g=k=>$('a_'+k).value.trim();if(!g('make')||!g('model')||!g('price'))return toast('Make, model and price are required');if(A(me)&&!g('dealer'))return toast('Choose which dealer owns this car');
+const photos=await Promise.all([...$('a_ph').files].slice(0,5).map(shrink));
+if(await run(sb.from('cars').insert({dealer:A(me)?g('dealer'):me.id,make:g('make'),model:g('model'),year:+g('year')||null,price:+g('price'),cond:g('cond'),mile:+g('mile')||0,fuel:g('fuel'),trans:g('trans'),color:g('color'),descr:g('desc'),photos}))){toast('Listing published');tab=A(me)?'cars':'inv';dash()}}
+function editC(id){const c=car(id);$('modal').innerHTML=`<div class="mb"><h3>Edit ${esc(title(c))}</h3><div class="f4" style="grid-template-columns:1fr 1fr">${[['make','Make'],['model','Model'],['year','Year','number'],['price','Price','number'],['mile','Mileage','number'],['color','Color']].map(f=>`<div><label>${f[1]}</label><input id="e_${f[0]}" type="${f[2]||'text'}" value="${esc(c[f[0]])}"></div>`).join('')}<div><label>Condition</label><select id="e_cond">${opt(['New','Foreign Used','Locally Used'],c.cond)}</select></div><div><label>Fuel</label><select id="e_fuel">${opt(['Petrol','Diesel','Hybrid'],c.fuel)}</select></div><div><label>Transmission</label><select id="e_trans">${opt(['Automatic','Manual'],c.trans)}</select></div>${A(me)?`<div><label>Dealer</label><select id="e_dealer">${dOpts(c.dealer)}</select></div>`:''}</div><label>Description</label><textarea id="e_desc" rows="3">${esc(c.desc)}</textarea><div style="margin-top:14px"><button class="btn" onclick="saveEdit(${id})">Save</button> <button class="btn o" onclick="closeM()">Cancel</button></div></div>`;$('mbg').classList.add('on')}
+async function saveEdit(id){const g=k=>$('e_'+k).value,u={make:g('make'),model:g('model'),year:+g('year')||null,price:+g('price'),mile:+g('mile'),color:g('color'),cond:g('cond'),fuel:g('fuel'),trans:g('trans'),descr:g('desc')};if(A(me))u.dealer=g('dealer');if(await run(sb.from('cars').update(u).eq('id',id))){closeM();dash()}}
 
-  <section>
-    <h2 class="sec-title">🚗 Cars for Sale Near You</h2>
-    <p class="sec-sub">Browse verified listings from local car yards. Book a free viewing or contact the dealer directly.</p>
-    <div class="grid" id="carGrid"></div>
-  </section>
-
-  <section>
-    <h2 class="sec-title">How It Works</h2>
-    <p class="sec-sub">Simple for buyers, powerful for dealers.</p>
-    <div class="grid">
-      <div class="panel"><h3>1️⃣ Browse Listings</h3><p style="margin-top:8px">Search cars by make, model, price and condition — all from trusted yards in your area.</p></div>
-      <div class="panel"><h3>2️⃣ Book a Viewing</h3><p style="margin-top:8px">Pick a date and time to see the car in person, or chat with the dealer instantly on WhatsApp.</p></div>
-      <div class="panel"><h3>3️⃣ Drive Away Happy</h3><p style="margin-top:8px">Meet the dealer, inspect the car, and seal the deal — with VroomMarket connecting you.</p></div>
-    </div>
-  </section>
-</div>
-
-<!-- ================= BUYER SEARCH ================= -->
-<div id="view-buy" class="hidden">
-  <section>
-    <h2 class="sec-title">Find Your Car</h2>
-    <p class="sec-sub">Choose one filter or combine several to narrow down the listings.</p>
-    <div class="panel">
-      <div class="filter-grid">
-        <div><label for="filterModel">Model</label><input id="filterModel" type="text" placeholder="e.g. Toyota or Corolla"></div>
-        <div><label for="filterYear">Year</label><input id="filterYear" type="number" step="1" placeholder="Any year"></div>
-        <div><label for="filterCondition">Condition</label><select id="filterCondition"><option value="">Any condition</option><option>New</option><option>Foreign Used</option><option>Locally Used</option></select></div>
-        <div><label for="filterColor">Color</label><input id="filterColor" type="text" placeholder="e.g. White"></div>
-      </div>
-      <div class="filter-actions">
-        <button class="btn btn-green" onclick="filterCars()">Search Cars</button>
-        <button class="btn btn-outline" onclick="clearCarFilters()">Clear Filters</button>
-      </div>
-    </div>
-    <p id="filterSummary" class="sec-sub" style="margin-top:26px;margin-bottom:14px"></p>
-    <div class="grid" id="filteredCarGrid"></div>
-  </section>
-</div>
-
-<!-- ================= LOGIN ================= -->
-<div id="view-login" class="hidden">
-  <section style="max-width:460px">
-    <h2 class="sec-title">Dealer / Admin Login</h2>
-    <p class="sec-sub">Access is granted by the VroomMarket admin. Dealers receive login credentials by email.</p>
-    <div class="panel">
-      <label>Email</label><input id="loginEmail" type="email" placeholder="you@yard.com">
-      <label>Password</label><input id="loginPass" type="password" placeholder="••••••••">
-      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-green" onclick="doLogin()">Login</button>
-        <button class="btn btn-outline" onclick="showView('home')">Cancel</button>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- ================= DEALER DASHBOARD ================= -->
-<div id="view-dealer" class="hidden">
-  <section>
-    <div class="dash-head">
-      <div><h2 class="sec-title" id="dealerName">Dealer Dashboard</h2><p class="sec-sub" id="dealerSub"></p></div>
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-green" onclick="document.getElementById('addCarForm').classList.toggle('hidden')">+ Add Car</button>
-        <button class="btn btn-outline" onclick="logout()">Logout</button>
-      </div>
-    </div>
-
-    <div class="stats-row">
-      <div class="stat"><b id="statCars">0</b>My Listings</div>
-      <div class="stat" style="background:#8a6d00"><b id="statAppt">0</b>Viewing Requests</div>
-    </div>
-
-    <div id="addCarForm" class="panel hidden" style="margin-bottom:26px">
-      <h3>Post a New Car</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 18px">
-        <div><label>Make</label><select id="cMake" onchange="loadModels()"><option value="">Select Make...</option></select></div>
-        <div><label>Model</label><select id="cModel"><option value="">Select Model...</option></select></div>
-        <div><label>Year</label><input id="cYear" type="number" placeholder="e.g. 2018"></div>
-        <div><label>Price (KES)</label><input id="cPrice" type="number" placeholder="e.g. 1450000"></div>
-        <div><label>Condition</label><select id="cCond"><option>New</option><option>Foreign Used</option><option>Locally Used</option></select></div>
-        <div><label>Mileage (km)</label><input id="cMile" placeholder="e.g. 62000"></div>
-        <div><label>Fuel</label><select id="cFuel"><option>Petrol</option><option>Diesel</option><option>Hybrid</option></select></div>
-        <div><label>Transmission</label><select id="cTrans"><option>Automatic</option><option>Manual</option></select></div>
-      </div>
-      <label for="cPhotos">Photos</label><input id="cPhotos" type="file" accept="image/*" multiple>
-      <label>Description</label><textarea id="cDesc" rows="3" placeholder="Condition, features, service history…"></textarea>
-      <button class="btn btn-green" style="margin-top:16px" onclick="addCar()">Publish Listing</button>
-    </div>
-
-    <h3 style="margin-bottom:10px">My Cars</h3>
-    <table id="dealerCarsTable"><thead><tr><th>Car</th><th>Price</th><th>Condition</th><th>Status</th><th>Photos</th><th>Viewing Requests</th></tr></thead><tbody></tbody></table>
-
-    <h3 style="margin:26px 0 10px">Viewing Requests From Buyers</h3>
-    <table id="dealerApptTable"><thead><tr><th>Buyer</th><th>Car</th><th>Date</th><th>Phone</th><th>Status</th></tr></thead><tbody></tbody></table>
-
-    <h3 style="margin:26px 0 10px">Record a Sale</h3>
-    <div class="panel" style="margin-bottom:26px">
-      <div class="filter-grid">
-        <div><label for="saleCar">Car</label><select id="saleCar"><option value="">Select one of your cars</option></select></div>
-        <div><label for="saleAmount">Sale price (KES)</label><input id="saleAmount" type="number" min="1"></div>
-        <div><label for="saleDate">Sale date</label><input id="saleDate" type="date"></div>
-        <div><label for="saleNotes">Notes</label><input id="saleNotes" type="text" placeholder="Optional"></div>
-      </div>
-      <button class="btn btn-green" style="margin-top:16px" onclick="recordSale()">Record Sale</button>
-    </div>
-    <h3 style="margin:26px 0 10px">My Sales</h3>
-    <table id="dealerSalesTable"><thead><tr><th>Car</th><th>Amount</th><th>Date</th><th>Notes</th></tr></thead><tbody></tbody></table>
-
-    <h3 style="margin:26px 0 10px">Change Password</h3>
-    <div class="panel">
-      <label for="dealerNewPassword">New password</label><input id="dealerNewPassword" type="password" autocomplete="new-password">
-      <button class="btn btn-outline" style="margin-top:16px" onclick="changeOwnPassword()">Update Password</button>
-    </div>
-  </section>
-</div>
-
-<!-- ================= ADMIN DASHBOARD ================= -->
-<div id="view-admin" class="hidden">
-  <section>
-    <div class="dash-head">
-      <div><h2 class="sec-title">⚙️ Admin Dashboard</h2><p class="sec-sub">Full control of dealers, listings and appointments.</p></div>
-      <button class="btn btn-outline" onclick="logout()">Logout</button>
-    </div>
-
-    <div class="stats-row">
-      <button type="button" class="stat stat-button" onclick="focusAdminSection('admin-dealers')"><b id="statAllDealers">0</b>Registered Dealers</button>
-      <button type="button" class="stat stat-button" style="background:#1565c0" onclick="focusAdminSection('admin-listings')"><b id="statAllCars">0</b>Total Cars</button>
-      <button type="button" class="stat stat-button" style="background:#8a6d00" onclick="focusAdminSection('admin-appointments')"><b id="statAllAppt">0</b>Viewing Requests</button>
-      <button type="button" class="stat stat-button" style="background:#b71c1c" onclick="focusAdminSection('admin-approvals')"><b id="statPendingApprovals">0</b>Pending Approvals</button>
-    </div>
-
-    <h3 style="margin-bottom:10px">Register a New Dealer</h3>
-    <div class="panel" style="margin-bottom:30px">
-      <div class="filter-grid">
-        <div><label>Yard / Dealer Name</label><input id="dName" placeholder="e.g. Thika Road Motors"></div>
-        <div><label>Email (login)</label><input id="dEmail" type="email" placeholder="dealer@yard.com"></div>
-        <div><label>Temporary Password</label><input id="dPass" type="password" autocomplete="new-password"></div>
-        <div><label>Phone</label><input id="dPhone" type="tel"></div>
-        <div><label>WhatsApp number</label><input id="dWhatsapp" type="tel"></div>
-        <div><label>Location</label><input id="dLocation"></div>
-      </div>
-      <button class="btn btn-green" style="margin-top:16px" onclick="registerDealer()">Create Dealer Account</button>
-    </div>
-
-    <h3 style="margin-bottom:10px">Add an Admin</h3>
-    <div class="panel" style="margin-bottom:30px">
-      <div class="filter-grid">
-        <div><label>Email</label><input id="aEmail" type="email"></div>
-        <div><label>Temporary Password</label><input id="aPass" type="password" autocomplete="new-password"></div>
-      </div>
-      <button class="btn btn-green" style="margin-top:16px" onclick="registerAdmin()">Create Admin Account</button>
-    </div>
-
-    <h3 id="admin-dealers" class="admin-target" style="margin-bottom:10px">Registered Dealers</h3>
-    <table id="dealerTable"><thead><tr><th>Yard Name</th><th>Email</th><th>Phone</th><th>WhatsApp</th><th>Location</th><th>Cars</th><th>Actions</th></tr></thead><tbody></tbody></table>
-
-    <h3 id="admin-listings" class="admin-target" style="margin:26px 0 10px">All Car Listings</h3>
-    <table id="adminCarsTable"><thead><tr><th>Car</th><th>Dealer</th><th>Price</th><th>Status</th><th>Photos</th><th>Action</th></tr></thead><tbody></tbody></table>
-
-    <h3 id="admin-appointments" class="admin-target" style="margin:26px 0 10px">Viewing Requests</h3>
-    <table id="adminApptTable"><thead><tr><th>Buyer</th><th>Car</th><th>Date</th><th>Phone</th><th>Status</th></tr></thead><tbody></tbody></table>
-
-    <h3 id="admin-approvals" class="admin-target" style="margin:26px 0 10px">Pending Approvals</h3>
-    <table id="adminApprovalTable"><thead><tr><th>Car</th><th>Dealer</th><th>Price</th><th>Status</th></tr></thead><tbody></tbody></table>
-
-    <h3 id="admin-sales" class="admin-target" style="margin:26px 0 10px">Dealer Sales</h3>
-    <table id="adminSalesTable"><thead><tr><th>Dealer</th><th>Car</th><th>Amount</th><th>Date</th><th>Notes</th></tr></thead><tbody></tbody></table>
-  </section>
-</div>
-
-<!-- ================= CAR DETAIL MODAL ================= -->
-<div class="modal-bg" id="carModal">
-  <div class="modal">
-    <div class="modal-body" style="padding:0">
-      <img class="m-img" id="mImg" src="" alt="">
-      <div class="photo-thumbnails" id="mPhotos"></div>
-      <div style="padding:22px 28px">
-        <span class="close-x" onclick="closeModal()">×</span>
-        <h2 id="mTitle"></h2>
-        <div class="price" id="mPrice" style="color:var(--green);font-weight:800;font-size:22px"></div>
-        <div class="specs" id="mSpecs"></div>
-        <p id="mDesc"></p>
-        <p style="margin:10px 0;font-size:14px;color:#555">🏢 <b id="mDealer"></b> &nbsp;|&nbsp; 📍 <span id="mLoc"></span></p>
-
-        <div id="bookBox" class="hidden" style="background:var(--grey);border-radius:10px;padding:18px;margin:14px 0">
-          <h3>📅 Book a Free Viewing / Test Drive</h3>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 14px">
-            <div><label>Your Name</label><input id="bName"></div>
-            <div><label>Phone Number</label><input id="bPhone"></div>
-            <div><label>Preferred Date</label><input id="bDate" type="date"></div>
-            <div><label>Preferred Time</label><input id="bTime" type="time"></div>
-          </div>
-          <label>Message (optional)</label><textarea id="bMsg" rows="2" placeholder="Any questions about the car?"></textarea>
-          <button class="btn btn-green" style="margin-top:12px" onclick="submitBooking()">Confirm Booking Request</button>
-        </div>
-
-        <div class="actions">
-          <button class="btn btn-green" onclick="document.getElementById('bookBox').classList.toggle('hidden')">📅 Book Appointment</button>
-          <button class="btn btn-wa" onclick="alert('Demo: opens WhatsApp chat with the dealer.')">💬 Contact Dealer on WhatsApp</button>
-          <button class="btn btn-outline" onclick="alert('Demo: dials the dealer phone number.')">📞 Call Dealer</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<footer>
-  <b>VroomMarket</b> — The mother of all car marketplaces.<br>
-  Connecting local car yards with buyers. © 2026
-</footer>
-
-<!-- Your Scripts -->
-<script src="supabase.js"></script>
-<script src="api.js"></script>
-<script src="app.js"></script>
-</body>
-</html>
+const row=(k,v)=>`<div><b>${k}</b>${v||'—'}</div>`;
+function bookT(){const r=[...mine(db.bookings)].sort((a,b)=>(a.status==='Pending'?0:1)-(b.status==='Pending'?0:1)||String(a.date).localeCompare(b.date));
+$('tabBody').innerHTML=tb(['Buyer','Phone','Car','Dealer','Date','Time','Status','Actions'],r.map(b=>`<tr><td>${esc(b.name)}</td><td>${esc(b.phone)}</td><td>${esc(title(car(b.car)))}</td><td>${esc(dealer(b.dealer).name)}</td><td>${b.date}</td><td>${b.time}</td><td>${st(b.status)}</td><td><button class="btn sm o" onclick="viewB(${b.id})">View</button>${b.status==='Pending'?`<button class="btn sm" onclick="decide(${b.id},'Approved')">Approve</button><button class="btn sm x" onclick="decide(${b.id},'Rejected')">Reject</button>`:''}</td></tr>`))}
+function viewB(id){const b=db.bookings.find(x=>x.id===id),c=car(b.car);$('modal').innerHTML=`<div class="mb"><button class="btn o sm" style="float:right" onclick="closeM()">✕ Close</button><h3>Viewing request ${st(b.status)}</h3><div class="specs">${row('BUYER',esc(b.name))}${row('PHONE',`<a href="tel:${esc(b.phone)}">${esc(b.phone)}</a>`)}${row('CAR',esc(title(c)))}${row('DEALER',esc(dealer(b.dealer).name))}${row('DATE',b.date)}${row('TIME',b.time)}</div><p><b>Message:</b> ${esc(b.msg)||'<i>none</i>'}</p><p class="meta">Requested ${String(b.created||'').slice(0,16).replace('T',' ')}</p><div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">${b.status==='Pending'?`<button class="btn" onclick="decide(${b.id},'Approved').then(closeM)">Approve</button><button class="btn x" onclick="decide(${b.id},'Rejected').then(closeM)">Reject</button>`:''}<a class="btn wa" style="text-decoration:none" target="_blank" href="https://wa.me/${String(b.phone).replace(/\D/g,'').replace(/^0/,'254')}">💬 WhatsApp buyer</a></div></div>`;$('mbg').classList.add('on')}
+inqT=function(){const r=[...mine(db.inquiries)].reverse(),ids=r.filter(i=>!i.read).map(i=>i.id);
+$('tabBody').innerHTML=tb(['Date','Type','From','Contact','Car','Message',''],r.map(i=>`<tr><td>${i.date}</td><td><span class="pill ${i.type==='Trade-in offer'?'p':''}">${esc(i.type)}</span></td><td>${i.read?'':'🔵 '}${esc(i.name)}</td><td>${esc(i.contact)}</td><td>${esc(title(car(i.car)))}</td><td>${esc(String(i.msg).slice(0,40))}${String(i.msg).length>40?'…':''}</td><td><button class="btn sm o" onclick="viewI(${i.id})">View</button></td></tr>`));
+if(ids.length)sb.from('inquiries').update({read:true}).in('id',ids).then(()=>{ids.forEach(x=>{const i=db.inquiries.find(y=>y.id===x);if(i)i.read=true})})};
+function viewI(id){const i=db.inquiries.find(x=>x.id===id),ct=String(i.contact||''),link=ct.includes('@')?`mailto:${esc(ct)}`:`https://wa.me/${ct.replace(/\D/g,'').replace(/^0/,'254')}`;
+$('modal').innerHTML=`<div class="mb"><button class="btn o sm" style="float:right" onclick="closeM()">✕ Close</button><h3>${esc(i.type)}</h3><div class="specs">${row('FROM',esc(i.name))}${row('CONTACT',esc(ct))}${row('CAR',esc(title(car(i.car))))}${row('DEALER',esc(dealer(i.dealer).name))}${row('DATE',i.date)}</div><p style="white-space:pre-wrap">${esc(i.msg)}</p><div style="margin-top:14px"><a class="btn wa" style="text-decoration:none" target="_blank" href="${link}">Reply</a></div></div>`;$('mbg').classList.add('on')}
+let U=[];const PERMS=[['book','Bookings'],['inq','Inquiries'],['cars','Listings'],['dealers','Dealers'],['reports','Reports']];
+async function usersT(){const{data,error}=await sb.from('profiles').select('*').order('role');if(error)return toast(error.message);U=data;
+$('tabBody').innerHTML=`<div class="panel"><h3>Add a staff member</h3><p class="sub" style="margin:4px 0 0">Staff log in to the same dashboard and only see the sections you allow below.</p><div class="f4" style="grid-template-columns:repeat(3,1fr)"><div><label>Name</label><input id="st_name"></div><div><label>Email</label><input id="st_email" type="email"></div><div><label>Temporary password</label><input id="st_pass" type="password" autocomplete="new-password"></div></div><button class="btn" style="margin-top:14px" onclick="addStaff()">Create staff account</button></div>`+
+tb(['User','Role','Access','Status','Actions'],U.map(u=>{const self=u.id===me.id;return `<tr><td><b>${esc(u.name||'—')}</b><br><span class="meta">${esc(u.email||'')}${self?' (you)':''}</span></td><td><select style="width:auto" ${self?'disabled':''} onchange="setRole('${u.id}',this.value)">${opt(['admin','staff','dealer'],u.role).replace(/<option( selected)?>(\w+)/g,(m,a,v)=>`<option value="${v}"${a||''}>${v}`)}</select></td><td style="white-space:normal;min-width:260px">${u.role==='staff'?PERMS.map(p=>`<label style="display:inline-flex;gap:4px;margin:2px 10px 2px 0;font-weight:400"><input type="checkbox" style="width:auto" ${(u.perms||{})[p[0]]?'checked':''} onchange="setPerm('${u.id}','${p[0]}',this.checked)">${p[1]}</label>`).join(''):u.role==='admin'?'Full access':'Own listings & customers only'}</td><td>${u.restricted?'<span class="pill b">Restricted</span>':'<span class="pill">Active</span>'}</td><td>${self?'—':`<button class="btn sm ${u.restricted?'':'x'}" onclick="restrictU('${u.id}',${!u.restricted})">${u.restricted?'Allow access':'Restrict'}</button>`}</td></tr>`}))}
+async function setPerm(id,k,v){const u=U.find(x=>x.id===id),p={...(u.perms||{}),[k]:v};const{error}=await sb.from('profiles').update({perms:p}).eq('id',id);if(error)return toast(error.message);u.perms=p;toast('Permission saved')}
+async function setRole(id,r){if(await run(sb.from('profiles').update({role:r}).eq('id',id))){toast('Role changed to '+r);usersT()}}
+async function restrictU(id,v){if(await run(sb.from('profiles').update({restricted:v}).eq('id',id))){toast(v?'User restricted — they can no longer log in or edit data':'Access restored');usersT()}}
+async function addStaff(){const v=k=>$('st_'+k).value.trim();if(!v('name')||!v('email')||v('pass').length<6)return toast('Name, email and a 6+ character password are required');
+const tmp=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false,autoRefreshToken:false}});const{data,error}=await tmp.auth.signUp({email:v('email'),password:v('pass')});
+if(error||!data.user)return toast(error?error.message:'Could not create user');
+if(await run(sb.from('profiles').insert({id:data.user.id,role:'staff',name:v('name'),email:v('email'),perms:{book:true,inq:true}}))){toast('Staff created (bookings + inquiries allowed by default)');usersT()}}
+boot();
+</script></body></html>
